@@ -20,7 +20,7 @@
     li.li9 {margin: 0.0px 0.0px 12.0px 0.0px; font: 12.0px Times}
     span.s1 {font: 12.0px Times}
     span.s2 {text-decoration: underline}
-    span.s3 {font: 5.0px Times}
+    span.s3 {font: 4.0px Times}
     span.s4 {font: 10.0px Times}
     span.s5 {font: 12.0px Courier}
     ol.ol1 {list-style-type: decimal}
@@ -35,7 +35,7 @@
 <p class="p1"><b>Project 1: Cache design</b></p>
 <p class="p1"><span class="s1"><br>
 </span><b>Due: Friday, February 24, 2012 @ 11:55 PM</b></p>
-<p class="p2"><b>Version 1.1</b></p>
+<p class="p2"><b>Version 2</b></p>
 <p class="p3"><br></p>
 <h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 18.0px Times"><b>Rules</b></h2>
 <p class="p5">This is the first project for the course --- here are some rules:</p>
@@ -55,8 +55,8 @@
 <h3 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 14.0px Times"><b><i>Cache simulation capabilities:</i></b></h3>
 <ol class="ol2">
   <li class="li5">The simulator can model any three-level caching system, each level, i, with 2<span class="s3"><i><sup>Ci</sup></i></span> bytes of total data storage, having 2<span class="s3"><i><sup>Bi</sup></i></span>-byte blocks, and with sets of 2<span class="s3"><i><sup>Si</sup></i></span> blocks per set (note that S=0 is a direct-mapped cache, and <i>Si = Ci - Bi</i> is a fully associative cache).</li>
-  <li class="li5">The cache hierarchy is <i>inclusive</i> (Data at the level 1 cache is also present in the level 2 and level 3 caches.<span class="Apple-converted-space">  </span>Data in the level 2 cache is also present in the level 3 cache.)</li>
   <li class="li5">It is always true that <i>B1 ≤ B2 ≤ B3</i>, <i>C1 ≤ C2 ≤ C3</i>, and <i>S1 ≤ S2 ≤ S3</i></li>
+  <li class="li5">On a miss in L1 data should always be provided by the L2.<span class="Apple-converted-space">  </span>On a miss in L2 data should always be provided by the L3. On a miss in L3 the data should always be provided by memory.</li>
   <li class="li5">Replacement for the cache is via the <i>least recently used</i> (LRU) replacement algorithm.</li>
   <li class="li5">The cache implements the write-back, write-allocate (WBWA) policy. There is an additional <i>dirty bit</i> for each tag in the tag store.</li>
   <li class="li5">There is a <i>valid bit</i> for each tag entry that specifies whether or not this entry in the cache has been accessed.  When the simulator starts, all <i>valid bits</i> are set to false (0).).</li>
