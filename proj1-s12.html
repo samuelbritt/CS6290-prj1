@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title>CS X290/ECE x100 Project 1</title>
+  <meta name="Author" content="Tom Conte">
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1138.23">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 12.0px 0.0px; text-align: center; font: 14.0px Times}
+    p.p2 {margin: 0.0px 0.0px 12.0px 0.0px; text-align: center; font: 12.0px Times}
+    p.p3 {margin: 0.0px 0.0px 12.0px 0.0px; font: 12.0px Times; min-height: 14.0px}
+    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times}
+    p.p7 {margin: 0.0px 0.0px 12.0px 0.0px; font: 10.0px Courier}
+    p.p8 {margin: 0.0px 0.0px 12.0px 0.0px; font: 10.0px Times}
+    p.p9 {margin: 0.0px 0.0px 12.0px 0.0px; font: 12.0px Times}
+    p.p10 {margin: 0.0px 0.0px 12.0px 0.0px; font: 12.0px Courier}
+    li.li5 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times}
+    li.li9 {margin: 0.0px 0.0px 12.0px 0.0px; font: 12.0px Times}
+    span.s1 {font: 12.0px Times}
+    span.s2 {text-decoration: underline}
+    span.s3 {font: 5.0px Times}
+    span.s4 {font: 10.0px Times}
+    span.s5 {font: 12.0px Courier}
+    ol.ol1 {list-style-type: decimal}
+    ol.ol2 {list-style-type: lower-alpha}
+    ul.ul1 {list-style-type: disc}
+  </style>
+</head>
+<body>
+<p class="p1"><b>Georgia Institute of Techology</b></p>
+<p class="p1"><b>Schools of Computer Science and Electrical &amp; Computer Engineering</b></p>
+<p class="p1"><b>CS 4290/6290, ECE 4100/6100: Spring, 2012 (Conte)</b></p>
+<p class="p1"><b>Project 1: Cache design</b></p>
+<p class="p1"><span class="s1"><br>
+</span><b>Due: Friday, February 24, 2012 @ 11:55 PM</b></p>
+<p class="p2"><b>Version 1.1</b></p>
+<p class="p3"><br></p>
+<h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 18.0px Times"><b>Rules</b></h2>
+<p class="p5">This is the first project for the course --- here are some rules:</p>
+<ol class="ol1">
+  <ol class="ol1">
+    <li class="li5"><span class="s2">Sharing of code between students is viewed as cheating</span> and will receive appropriate action in accordance with University policy.</li>
+    <li class="li5">It is acceptable for you to compare your <span class="s2">results</span>, and only your results, with other students to help debug your program. It is <span class="s2">not acceptable</span> to collaborate either on the code development or on the final experiments.</li>
+    <li class="li5">You should do all your work in the C, C++ or Java programming language, no exception.</li>
+    <li class="li5">Your code must compile and run on a current variant of Linux (i.e., Debian, Red Hat, Ubuntu) running on an x86 architecture (i.e., Intel or AMD).</li>
+    <li class="li5">Unfortunately experience has shown that there is a very high chance that there are errors in this project description.  The online version will be updated as errors are discovered.  <i>It is your responsibility to check the website often and download new versions of this project description as they become available. That being said, we will announce when new versions are posted</i>.</li>
+  </ol>
+</ol>
+<h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 18.0px Times"><b>Project Description:</b></h2>
+<p class="p5">Cache memories have many tradeoffs and their designs are hard master.  One way to understand them is to actually build a cache.  We do not have time to do this in this class.  However, writing a simulator for a cache can also make caches easier to understand.  So in this project, you will design a parametric cache simulator and use it to design data caches well suited to the SPEC benchmarks.<span class="Apple-converted-space"> </span></p>
+<p class="p5"> </p>
+<h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 18.0px Times"><b>Specification of simulator:</b></h2>
+<h3 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 14.0px Times"><b><i>Cache simulation capabilities:</i></b></h3>
+<ol class="ol2">
+  <li class="li5">The simulator can model any three-level caching system, each level, i, with 2<span class="s3"><i><sup>Ci</sup></i></span> bytes of total data storage, having 2<span class="s3"><i><sup>Bi</sup></i></span>-byte blocks, and with sets of 2<span class="s3"><i><sup>Si</sup></i></span> blocks per set (note that S=0 is a direct-mapped cache, and <i>Si = Ci - Bi</i> is a fully associative cache).</li>
+  <li class="li5">The cache hierarchy is <i>inclusive</i> (Data at the level 1 cache is also present in the level 2 and level 3 caches.<span class="Apple-converted-space">  </span>Data in the level 2 cache is also present in the level 3 cache.)</li>
+  <li class="li5">It is always true that <i>B1 ≤ B2 ≤ B3</i>, <i>C1 ≤ C2 ≤ C3</i>, and <i>S1 ≤ S2 ≤ S3</i></li>
+  <li class="li5">Replacement for the cache is via the <i>least recently used</i> (LRU) replacement algorithm.</li>
+  <li class="li5">The cache implements the write-back, write-allocate (WBWA) policy. There is an additional <i>dirty bit</i> for each tag in the tag store.</li>
+  <li class="li5">There is a <i>valid bit</i> for each tag entry that specifies whether or not this entry in the cache has been accessed.  When the simulator starts, all <i>valid bits</i> are set to false (0).).</li>
+  <li class="li5">The size of an address is 32 bits.</li>
+  <li class="li5">In general, (<i>C1, B1, S1, C2, B2, S2, C3, B3, S3</i>) completely specifies the caching system.</li>
+  <li class="li5">For simplicity, you can assume that the bus between a level i cache and level i+1 cache is the same width as the block size of the level i cache.</li>
+</ol>
+<h3 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 14.0px Times"><b><i>Input</i>: The simulator reads a trace file in the following format:</b></h3>
+<p class="p7"><span class="s1"><br>
+</span>r|w &lt;hex address&gt;<span class="s1"> <br>
+</span>r|w &lt;hex address&gt;<span class="s1"> <br>
+...</span></p>
+<p class="p8">Example:</p>
+<p class="p7">r ffe04540<span class="s1"> <br>
+</span>r ffe04544<span class="s1"> <br>
+</span>w 0eff2340<span class="s1"> <br>
+</span>r ffe04548<span class="s1"> <br>
+</span>...</p>
+<p class="p9">Each line in the trace file is a read or write of one word (four bytes) of data.</p>
+<p class="p9"><b>Command-line parameters</b></p>
+<p class="p9">Your project should include a Makefile which builds binary in your project's root directory named <i>cache_sim</i>.<span class="Apple-converted-space">  </span>The program should run from this root directory as:</p>
+<p class="p9">./cache_sim C1 B1 S1 C2 B2 S2 C3 B3 S3</p>
+<p class="p9">The command line parameters are as follows:</p>
+<ul class="ul1">
+  <li class="li9">C1 - log2(Cache Size of the Level 1 Cache)</li>
+  <li class="li9">B1 - log2(Block Size of the Level 1 Cache)</li>
+  <li class="li9">S1 - log2(Set Associativity of the Level 1 Cache)</li>
+  <li class="li9">C2 - log2(Cache Size of the Level 2 Cache)</li>
+  <li class="li9">B2 - log2(Block Size of the Level 2 Cache)</li>
+  <li class="li9">S2 - log2(Set Associativity of the Level 2 Cache)</li>
+  <li class="li9">C3 - log2(Cache Size of the Level 3 Cache)</li>
+  <li class="li9">B3 - log2(Block Size of the Level 3 Cache)</li>
+  <li class="li9">S3 - log2(Set Associativity of the Level 3 Cache)</li>
+</ul>
+<p class="p9"><b>Traces will be downloadable directly from T-Square.</b></p>
+<p class="p9">Please see the hints section for a description of how to read this file.</p>
+<h3 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 14.0px Times"><b><i>Statistics (output)</i>: The simulator outputs the following statistics for each level in the cache hierarchy after completion of the run:</b></h3>
+<ol class="ol2">
+  <li class="li5">number of accesses to the cache</li>
+  <li class="li5">number of reads</li>
+  <li class="li5">number of read misses</li>
+  <li class="li5">number of writes</li>
+  <li class="li5">number of write misses</li>
+  <li class="li5">number of write backs measured in bytes</li>
+  <li class="li5">total number of bytes transferred to/from the next level of the hierarchy.</li>
+  <li class="li5">total number of misses</li>
+  <li class="li5">cache miss rate, which equals (<i>number of read misses</i>/(<i>number of reads to the cache</i>))</li>
+  <li class="li5">total number of <i>bits</i> of cache storage for this level, including all data storage, tag storage, valid and dirty bits.</li>
+</ol>
+<p class="p5">In addition, report the following for the overall memory system:</p>
+<p class="p9">The OVERALL (i.e., the CPU's view) average memory access time (AAT) assuming:</p>
+<ul class="ul1">
+  <li class="li5">a miss penalty of 500 nsec for level <i>3</i>, and</li>
+  <li class="li5">a hit time of 2<span class="s4"><i>i</i></span>+0.2*<i>i*Si</i> nsec for level <i>i</i> (where there are 2<span class="s3"><i><sup>Si</sup></i></span> blocks per set).</li>
+</ul>
+<p class="p5">Recall that the average access time equation is:</p>
+<p class="p9">AAT = Hit time + Cache miss rate x Miss penalty, and that<br>
+<br>
+Miss penalty of level <i>i</i> is the AAT of level <i>i</i> + 1 for i = 1, 2, and 500 nsec for level <i>i</i> = 3. <br>
+ </p>
+<h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 18.0px Times"><b>Experiments:</b></h2>
+<p class="p5">First validate your simulator (see the section on <i>validation requirement</i> below).</p>
+<p class="p9">THE EXPERIMENTS ARE AS IMPORTANT AS HAVING A WORKING SIMULATOR!</p>
+<p class="p9"><span class="s2">For each trace file provided on T-Square</span>, design a cache subject to the following goals: <br>
+ </p>
+<ol class="ol2">
+  <li class="li5">You have a total budget of 1MB for the entire cache system's storage (including all data storage, tag storage, dirty and valid bits).</li>
+  <li class="li5">The cache should have the lowest possible AAT.</li>
+</ol>
+<p class="p5">You may vary any parameter (<i>C1, B1, S1, C2, B2, S2, C3, B3, S3</i>). Remember that <i>B1 ≤ B2 ≤ B3</i>, <i>C1 ≤ C2 ≤ C3</i>, and <i>S1 ≤ S2 ≤ S3.</i></p>
+<h3 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 14.0px Times"><b>Validation Requirement</b></h3>
+<p class="p5">Four sample simulation outputs will be provided on T-Square by the TAs. You must run your simulator and debug it until it matches <span class="s2">100%</span> all of the statistics in the validation outputs posted on the website, plus the final cache contents for each validation run. You are required to hand in this validated output with your project (see grading).</p>
+<h3 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 14.0px Times"><b>What to hand in via T-Square:</b></h3>
+<ol class="ol1">
+  <li class="li5">Output from your simulation showing it matches <span class="s2">100%</span> all the statistics in the validation outputs posted on the website, plus the final cache contents (not provided on the website-- you must generate this yourself!) for each validation run.</li>
+  <li class="li5">The design results of the experiments for each trace file, with a <i>persuasive</i> argument of the choices that were made. (An argument may be as simple as an explanation of the search procedure used to find the designs and a statement about why the procedure is complete.) This argument should include output from runs of your program. (<i>Watch out! There are multiple answers for each trace file, so I will know which groups "collaborated" inappropriately!</i>)</li>
+  <li class="li5">The commented source code for the simulator program itself.</li>
+  <li class="li5">A Makefile and a README with compilation instructions so that the TA can compile and test your simulator</li>
+  <li class="li5">Remember that your code must compile and run on a current variant of Linux (i.e., Debian, Red Hat, Ubuntu) running on an x86 architecture (i.e., Intel or AMD).</li>
+  <li class="li5"><b>Note that late projects will not be accepted.</b></li>
+</ol>
+<h3 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 14.0px Times"><b>Grading will follow this philosophy:</b></h3>
+<p class="p9"><br>
+0%    You do not hand in anything by the deadline. <br>
++50%    Your simulator compiles but does not work, and you hand in a <b>significant</b> amount of commented code. <br>
++10%    Your simulator matches the validation outputs posted on the website. <br>
++30%    You ran all experiments and found a cache for each (your simulator must be validated first!)<span class="Apple-converted-space">  </span>(Graded on performance of cache as well as quality of discussion of experimental methodology / insights)<br>
++10%    The project hand in is award quality.  For example, you justified each cache with graphs or tables and a persuasive argument. <br>
+ </p>
+<h3 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 14.0px Times"><b>Hints</b></h3>
+<p class="p9">There is no data (i.e., values) in the traces, just addresses of the locations accessed. This means your simulator implements only a tag store in order to find hits/misses for a cache.</p>
+<p class="p9">To read the file, you can use this C code framework:</p>
+<p class="p10">   #include &lt;stdio.h&gt;</p>
+<p class="p10">   main() {<span class="s1"> <br>
+</span>   int addr;<span class="s1"> <br>
+</span>   char rw;</p>
+<p class="p10">    /* Begin reading the file */<span class="s1"> <br>
+</span>    while (!feof(stdin)) {<span class="s1"> <br>
+</span>        num_accesses++;</p>
+<p class="p10">        fscanf(stdin, "%c %x\n", &amp;rw, &amp;addr);<span class="s1"> <br>
+</span>        cache_access(rw, addr);<span class="s1"> <br>
+</span>    }<span class="s1"> <br>
+</span>   ...</p>
+<p class="p9">This <span class="s5">while</span> loop will exit when the file ends.</p>
+<p class="p9">If you compile the program to "<span class="s5">a.out</span>", then you can run the program using "<span class="s5">a.out &lt; file</span>", where "<span class="s5">file</span>" is the benchmark trace file.</p>
+<p class="p9">Note that you must write the <span class="s5">cache_access(...)</span> function yourself (<i>duh...</i>).<br>
+  <br>
+  <br>
+ </p>
+</body>
+</html>
