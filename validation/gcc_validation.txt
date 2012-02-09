@@ -9,7 +9,7 @@ C3: 11
 B3: 6
 S3: 0
 
-AAT: 89 ns
+AAT: 95 ns
 Total Storage (Bytes): 3749
 
 L1 Cache
@@ -18,32 +18,32 @@ Reads: 63640
 Read Misses: 20477
 Writes: 36360
 Write Misses: 8244
-Writebacks (Bytes): 807104
-Data Transferred (Bytes): 2645248
+Writebacks (Bytes): 649152
+Data Transferred (Bytes): 2487296
 Total Misses: 28721
-Miss Rate: 0.321869
+Miss Rate: 0.321763
 Total Storage (Bits): 4296
 
 L2 Cache
-Accesses: 41332
-Reads: 20477
-Read Misses: 14895
-Writes: 20855
-Write Misses: 6597
-Writebacks (Bytes): 593728
-Data Transferred (Bytes): 1969216
+Accesses: 38864
+Reads: 28721
+Read Misses: 21492
+Writes: 10143
+Write Misses: 0
+Writebacks (Bytes): 518848
+Data Transferred (Bytes): 1894336
 Total Misses: 21492
-Miss Rate: 0.727401
+Miss Rate: 0.748303
 Total Storage (Bits): 8576
 
 L3 Cache
-Accesses: 30769
-Reads: 14895
-Read Misses: 10789
-Writes: 15874
-Write Misses: 5333
+Accesses: 29599
+Reads: 21492
+Read Misses: 16122
+Writes: 8107
+Write Misses: 0
 Writebacks (Bytes): 409536
 Data Transferred (Bytes): 1441344
 Total Misses: 16122
-Miss Rate: 0.724337
+Miss Rate: 0.75014
 Total Storage (Bits): 17120
