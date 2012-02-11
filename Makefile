@@ -8,6 +8,7 @@ OBJ = src/cache_sim.o
 all: $(TGT)
 
 $(TGT): src/cache_sim.o
+	$(LINK.c) -o $@ $^ 
 
 $(OBJ): $(SRC)
 
