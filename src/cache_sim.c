@@ -54,5 +54,7 @@ int main(int argc, char const *argv[])
 		cache_access(rw, addr);
 	}
 
+	struct cache;
 	printf("Total number of accesses: %d", num_access);
+	printf("Cache misses: %d", cache.read_count);
 }
