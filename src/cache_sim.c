@@ -19,39 +19,38 @@ enum cache_level {
 	L3,
 };
 
-struct block {
-	void *address;				/* tag and index, no offset */
+struct cache_entry {
+	unsigned int tag;
+	unsigned long age;
 	unsigned short flags;
-	void *data; 				/* left empty for simulation */
+	void *data_block;		// left empty for simulation
 };
 
 struct set {
-	unsigned int tag;
-	unsigned int block_count;
-	struct block *blocks;
+	unsigned int entry_count;
+	struct cache_entry *entries;
 };
 
 struct cache {
-	struct cache *next;		/* linked list; NULL for last cache */
+	struct cache *next;		// linked list; NULL for last cache
 	enum cache_level level;
-	unsigned int c;				/* log_2(cache size) */
-	unsigned int b;				/* log_2(block size) */
-	unsigned int s;				/* log_2(set associativity) */
+	unsigned int c;			// log_2(cache size)
+	unsigned int b;			// log_2(block size)
+	unsigned int s; 		// log_2(set associativity)
 	unsigned int set_count;
-	struct set *sets;			/* array addressed by index */
-	unsigned int blocks_per_set;
+	struct set *sets;		// array addressed by index
 	unsigned int bit_len_in_tag;
 	unsigned int bit_len_in_index;
 	unsigned int bit_len_in_offset;
 
-	unsigned int average_access_time;	/* nanoseconds */
+	unsigned int average_access_time; // nanoseconds
 	unsigned int read_count;
 	unsigned int read_misses;
 	unsigned int write_count;
 	unsigned int write_misses;
-	size_t writebacks;			/* bytes */
-	size_t data_transferred;		/* bytes */
-	size_t total_storage;			/* bits */
+	size_t writebacks;		// bytes
+	size_t data_transferred;	// byte
+	size_t total_storage;		// bits
 };
 
 #define fail(msg) do {			\
@@ -60,21 +59,32 @@ struct cache {
 } while (0);
 
 /* *alloc's that fail */
-static inline void *emalloc(size_t size) {
+static inline void *emalloc(size_t size)
+{
 	void *p = malloc(size);
-	if (!p) {
+	if (!p)
 		fail("Memory error");
-	}
 	return p;
 }
-static inline void *ecalloc(size_t size) {
+static inline void *ecalloc(size_t size)
+{
 	void *p = calloc(1, size);
 	if (!p)
 		fail("Memory error");
 	return p;
 }
 
-/* initialize data */
+static int set_count(struct cache *cache)
+{
+	return 1 << (cache->c - cache->b - cache->s);
+}
+
+static int blocks_per_set(struct cache *cache)
+{
+	return 1 << cache->s;
+}
+
+/* initialize block */
 static void cache_init(struct cache *cache, unsigned c, unsigned b, unsigned s)
 {
 	/* most values are 0 to start with */
@@ -84,15 +94,25 @@ static void cache_init(struct cache *cache, unsigned c, unsigned b, unsigned s)
 	cache->b = b;
 	cache->s = s;
 
+	/* Allocate all the memory at once. The buffer is structured as set0 for
+	 * the cache, followed by set1, set2, ..., followed by all the entries
+	 * for set0, followed for all the entries for set1, etc. */
 	cache->set_count = set_count(cache);
-	cache->sets = ecalloc(cache->set_count * sizeof(*cache->sets));
-	int blocks_per_set = 1 << cache->s;
-	struct set *set;
-	for (int i = 0; i < cache->set_count; ++i) {
-		set = &cache->sets[i];
-		set->block_count = blocks_per_set;
-		set->blocks = ecalloc(set->block_count * sizeof(*set->blocks));
+	int entries_per_set = blocks_per_set(cache);
+	size_t sizeof_sets_total = cache->set_count * sizeof(*cache->sets);
+	int entry_count_total = cache->set_count * entries_per_set;
+	size_t sizeof_single_entry = sizeof(*cache->sets[0].entries);
+	size_t sizeof_entries_total = entry_count_total * sizeof_single_entry;
+	cache->sets = ecalloc(sizeof_sets_total + sizeof_entries_total);
 
+	/* set up the pointers for the above memory layout. Fist cache_entry
+	 * comes after all the sets */
+	struct cache_entry *e;
+	e = (struct cache_entry *) (cache->sets + cache->set_count);
+	for (int i = 0; i < cache->set_count; ++i) {
+		cache->sets[i].entry_count = entries_per_set;
+		cache->sets[i].entries = e;
+		e += cache->sets[i].entry_count;
 	}
 }
 
@@ -131,12 +151,12 @@ static unsigned int miss_penalty(struct cache *cache)
 static void cache_access(char c, void *addr)
 {
 	switch (c) {
-		case 'w':
-			printf("Write");
-			break;
-		case 'r':
-			printf("Read");
-			break;
+	case 'w':
+		printf("Write");
+		break;
+	case 'r':
+		printf("Read");
+		break;
 	}
 	printf("\t%p\n", addr);
 }
