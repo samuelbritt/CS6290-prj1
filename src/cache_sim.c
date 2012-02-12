@@ -194,7 +194,7 @@ static void cache_access(struct cache *cache, char c, void *addr)
 		cache_access(cache->next, c, addr);
 }
 
-int main(int argc, char const *argv[])
+int main_(int argc, char const *argv[])
 {
 	struct cache caches[CACHE_COUNT];
 
