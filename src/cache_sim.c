@@ -22,7 +22,7 @@ struct decoded_address {
 
 struct access_params {
 	enum access_type type;
-	struct address addr;
+	struct decoded_address addr;
 };
 
 enum cache_level {
@@ -159,34 +159,34 @@ static unsigned int miss_penalty(struct cache *cache)
 }
 
 /* splits address into tag, index, offset */
-static void decode_address(struct decode_address *d_addr,
-			   void *addr,
+static void decode_address(struct decoded_address *d_addr,
+			   unsigned long addr,
 			   struct cache *cache)
 {
-	memset(d, 0, sizeof(*d_addr));
+	memset(d_addr, 0, sizeof(*d_addr));
 	d_addr->tag = addr >> (cache->c - cache->s);
-	void *mask = (1 << (cache->c - cache->s)) - 1;
+	unsigned long mask = (1 << (cache->c - cache->s)) - 1;
 	d_addr->index = (addr & mask) >> cache->b;
 	mask = (1 << cache->b) - 1;
 	d_addr->offset = addr & mask;
 }
 
 /* attempts to access the data within a set */
-static int set_access(struct set *set, char c, struct decoded_address *addr)
+static int set_access(struct set *set, int access_type, struct decoded_address *addr)
 {
 	fprintf(stderr, "set_access() not implemented"); exit(1); /* TODO */
 }
 
-static void cache_access(struct cache *cache, enum access_type type, void *addr)
+static void cache_access(struct cache *cache, enum access_type type, unsigned long addr)
 {
 	if (!cache)
 		return;
-	struct decode_address decoded;
-	decode_address(&decoded, cache, addr);
+	struct decoded_address decoded;
+	decode_address(&decoded, addr, cache);
 	struct set *set = &cache->sets[decoded.index];
-	int available = set_access(set, c, &decoded);
+	int available = set_access(set, type, &decoded);
 	if (!available) {
-		cache_access(cache->next, c, addr);
+		cache_access(cache->next, type, addr);
 	}
 	switch (type) {
 	case WRITE:
@@ -231,7 +231,7 @@ int main(int argc, char const *argv[])
 	char rw;
 	while (!feof(stdin)) {
 		fscanf(stdin, "%c %p\n", &rw, &addr);
-		cache_access(caches, rw2access_type(rw), addr);
+		cache_access(caches, rw2access_type(rw), (unsigned long) addr);
 	}
 
 	struct cache;
