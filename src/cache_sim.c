@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #define CACHE_COUNT 3
 
@@ -14,9 +15,9 @@ enum access_type {
 };
 
 struct access_params {
-	int tag;
-	int index;
-	int offset;
+	unsigned tag;
+	unsigned index;
+	unsigned offset;
 };
 
 enum cache_level {
@@ -28,7 +29,7 @@ enum cache_level {
 struct cache_entry {
 	unsigned int tag;
 	unsigned long age;
-	unsigned short flags;
+	unsigned char flags;
 	void *data_block;		// left empty for simulation
 };
 
@@ -153,9 +154,15 @@ static unsigned int miss_penalty(struct cache *cache)
 }
 
 /* splits address into tag, index, offset */
-static void split_address(struct access_params *a, struct cache *c, void *addr)
+static void decode_address(struct access_params *access,
+			   struct cache *cache, void *addr)
 {
-	fprintf(stderr, "split_address not implemented"); exit(1); /* TODO */
+	memset(access, 0, sizeof(*access));
+	access->tag = addr >> (cache->c - cache->s);
+	unsigned mask = (1 << (access->c - access->s)) - 1;
+	access->index = (addr & mask) >> access->b;
+	mask = (1 << access->b) - 1;
+	access->offset = addr & mask;
 }
 
 /* attempts to access the data within a set */
@@ -169,15 +176,11 @@ static void cache_access(struct cache *cache, char c, void *addr)
 	if (!cache)
 		return;
 	struct access_params access;
-	split_address(&access, cache, addr);
+	decode_address(&access, cache, addr);
 	struct set *set = &cache->sets[access.index];
 	int available = set_access(set, c, &access);
 	if (!available) {
 		cache_access(cache->next, c, addr);
-	}
-	for (int i = 0; i < cache->; ++i)
-	{
-		/* code */
 	}
 	switch (c) {
 	case 'w':
