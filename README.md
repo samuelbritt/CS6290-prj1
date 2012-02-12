@@ -2,7 +2,9 @@ Sam Britt
 CS 6290 Project 1
 
 Type
+
   make
+
 to build the cache simulation application in the current directory. Type
 
     make test
