@@ -13,6 +13,12 @@ enum access_type {
 	WRITE
 };
 
+struct access_params {
+	int tag;
+	int index;
+	int offset;
+};
+
 enum cache_level {
 	L1 = 1,
 	L2,
@@ -145,11 +151,33 @@ static unsigned int miss_penalty(struct cache *cache)
 	}
 }
 
-/*
- * First level of cache access
- */
-static void cache_access(char c, void *addr)
+/* splits address into tag, index, offset */
+static void split_address(struct access_params *a, struct cache *c, void *addr)
 {
+	fprintf(stderr, "split_address not implemented"); exit(1); /* TODO */
+}
+
+/* attempts to access the data within a set */
+static int set_access(struct set *set, char c, struct access_params *access)
+{
+	fprintf(stderr, "set_access() not implemented"); exit(1); /* TODO */
+}
+
+static void cache_access(struct cache *cache, char c, void *addr)
+{
+	if (!cache)
+		return;
+	struct access_params access;
+	split_address(&access, cache, addr);
+	struct set *set = &cache->sets[access.index];
+	int available = set_access(set, c, &access);
+	if (!available) {
+		cache_access(cache->next, c, addr);
+	}
+	for (int i = 0; i < cache->; ++i)
+	{
+		/* code */
+	}
 	switch (c) {
 	case 'w':
 		printf("Write");
