@@ -10,7 +10,7 @@
 #define DIRTY 0x02
 
 enum access_type {
-	READ,
+	READ = 0,
 	WRITE
 };
 
@@ -51,15 +51,10 @@ struct cache {
 	unsigned int s; 		// log_2(set associativity)
 	unsigned int set_count;
 	struct set *sets;		// array addressed by index
-	unsigned int bit_len_in_tag;
-	unsigned int bit_len_in_index;
-	unsigned int bit_len_in_offset;
 
 	unsigned int average_access_time; // nanoseconds
-	unsigned int read_count;
-	unsigned int read_misses;
-	unsigned int write_count;
-	unsigned int write_misses;
+	unsigned int access_count[2];	// indexed by enum access_type
+	unsigned int miss_count[2];	// indexed by enum access_type
 	size_t writebacks;		// bytes
 	size_t data_transferred;	// byte
 	size_t total_storage;		// bits
@@ -132,12 +127,12 @@ static void cache_init(struct cache *cache, int level, unsigned c, unsigned b, u
 /* functions to perform statistics on caches */
 static unsigned int total_accesses(struct cache *cache)
 {
-	return cache->read_count + cache->write_count;
+	return cache->access_count[READ] + cache->access_count[WRITE];
 }
 
 static float miss_rate(struct cache *cache)
 {
-	return cache->read_misses / ((float) cache->read_count);
+	return cache->miss_count[READ] / ((float) cache->access_count[READ]);
 }
 
 static unsigned int miss_penalty(struct cache *cache);
@@ -181,24 +176,18 @@ static void cache_access(struct cache *cache, enum access_type type, unsigned lo
 {
 	if (!cache)
 		return;
+	cache->access_count[type]++;
 	struct decoded_address d_addr;
 	decode_address(&d_addr, addr, cache);
 	struct set *set = &cache->sets[d_addr.index];
 	int available = set_access(set, type, &d_addr);
 	if (!available) {
+		cache->miss_count[type]++;
 		cache_access(cache->next, type, addr);
-	}
-	switch (type) {
-	case WRITE:
-		cache->write_count++;
-		break;
-	case READ:
-		cache->read_count++;
-		break;
 	}
 }
 
-/* returns the access_type specified by the char input */
+/* returns the access_type specified by the char input. Returns -1 on error */
 static int rw2access_type(char rw)
 {
 	switch (rw) {
@@ -210,7 +199,9 @@ static int rw2access_type(char rw)
 			break;
 		default:
 			fail("invalid r/w input");
+			break;
 	}
+	return -1;
 }
 
 int main_(int argc, char const *argv[])
