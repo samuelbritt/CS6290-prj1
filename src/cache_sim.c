@@ -181,10 +181,10 @@ static void cache_access(struct cache *cache, enum access_type type, unsigned lo
 {
 	if (!cache)
 		return;
-	struct decoded_address decoded;
-	decode_address(&decoded, addr, cache);
-	struct set *set = &cache->sets[decoded.index];
-	int available = set_access(set, type, &decoded);
+	struct decoded_address d_addr;
+	decode_address(&d_addr, addr, cache);
+	struct set *set = &cache->sets[d_addr.index];
+	int available = set_access(set, type, &d_addr);
 	if (!available) {
 		cache_access(cache->next, type, addr);
 	}
