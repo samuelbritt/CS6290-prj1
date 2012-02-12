@@ -1,0 +1,61 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CACHE_COUNT	cache_sim.c	5;"	d	file:
+DIRTY	cache_sim.c	9;"	d	file:
+L1	cache_sim.c	/^	L1 = 1,$/;"	e	enum:cache_level	file:
+L2	cache_sim.c	/^	L2,$/;"	e	enum:cache_level	file:
+L3	cache_sim.c	/^	L3,$/;"	e	enum:cache_level	file:
+READ	cache_sim.c	/^	READ,$/;"	e	enum:access_type	file:
+VALID	cache_sim.c	8;"	d	file:
+WRITE	cache_sim.c	/^	WRITE$/;"	e	enum:access_type	file:
+access_params	cache_sim.c	/^struct access_params {$/;"	s	file:
+access_type	cache_sim.c	/^enum access_type {$/;"	g	file:
+age	cache_sim.c	/^	unsigned long age;$/;"	m	struct:cache_entry	file:
+average_access_time	cache_sim.c	/^	unsigned int average_access_time; \/\/ nanoseconds$/;"	m	struct:cache	file:
+average_access_time	cache_sim.c	/^static unsigned int average_access_time(struct cache *cache)$/;"	f	file:	signature:(struct cache *cache)
+b	cache_sim.c	/^	unsigned int b;			\/\/ log_2(block size)$/;"	m	struct:cache	file:
+bit_len_in_index	cache_sim.c	/^	unsigned int bit_len_in_index;$/;"	m	struct:cache	file:
+bit_len_in_offset	cache_sim.c	/^	unsigned int bit_len_in_offset;$/;"	m	struct:cache	file:
+bit_len_in_tag	cache_sim.c	/^	unsigned int bit_len_in_tag;$/;"	m	struct:cache	file:
+blocks_per_set	cache_sim.c	/^static int blocks_per_set(struct cache *cache)$/;"	f	file:	signature:(struct cache *cache)
+c	cache_sim.c	/^	unsigned int c;			\/\/ log_2(cache size)$/;"	m	struct:cache	file:
+cache	cache_sim.c	/^struct cache {$/;"	s	file:
+cache_access	cache_sim.c	/^static void cache_access(struct cache *cache, char c, void *addr)$/;"	f	file:	signature:(struct cache *cache, char c, void *addr)
+cache_entry	cache_sim.c	/^struct cache_entry {$/;"	s	file:
+cache_init	cache_sim.c	/^static void cache_init(struct cache *cache, unsigned c, unsigned b, unsigned s)$/;"	f	file:	signature:(struct cache *cache, unsigned c, unsigned b, unsigned s)
+cache_level	cache_sim.c	/^enum cache_level {$/;"	g	file:
+data_block	cache_sim.c	/^	void *data_block;		\/\/ left empty for simulation$/;"	m	struct:cache_entry	file:
+data_transferred	cache_sim.c	/^	size_t data_transferred;	\/\/ byte$/;"	m	struct:cache	file:
+ecalloc	cache_sim.c	/^static inline void *ecalloc(size_t size)$/;"	f	file:	signature:(size_t size)
+emalloc	cache_sim.c	/^static inline void *emalloc(size_t size)$/;"	f	file:	signature:(size_t size)
+entries	cache_sim.c	/^	struct cache_entry *entries;$/;"	m	struct:set	typeref:struct:set::cache_entry	file:
+entry_count	cache_sim.c	/^	unsigned int entry_count;$/;"	m	struct:set	file:
+fail	cache_sim.c	62;"	d	file:
+flags	cache_sim.c	/^	unsigned short flags;$/;"	m	struct:cache_entry	file:
+index	cache_sim.c	/^	int index;$/;"	m	struct:access_params	file:
+level	cache_sim.c	/^	enum cache_level level;$/;"	m	struct:cache	typeref:enum:cache::cache_level	file:
+main	cache_sim.c	/^int main(int argc, char const *argv[])$/;"	f	signature:(int argc, char const *argv[])
+miss_penalty	cache_sim.c	/^static unsigned int miss_penalty(struct cache *cache)$/;"	f	file:	signature:(struct cache *cache)
+miss_penalty	cache_sim.c	/^static unsigned int miss_penalty(struct cache *cache);$/;"	p	file:	signature:(struct cache *cache)
+miss_rate	cache_sim.c	/^static float miss_rate(struct cache *cache)$/;"	f	file:	signature:(struct cache *cache)
+next	cache_sim.c	/^	struct cache *next;		\/\/ linked list; NULL for last cache$/;"	m	struct:cache	typeref:struct:cache::cache	file:
+offset	cache_sim.c	/^	int offset;$/;"	m	struct:access_params	file:
+read_count	cache_sim.c	/^	unsigned int read_count;$/;"	m	struct:cache	file:
+read_misses	cache_sim.c	/^	unsigned int read_misses;$/;"	m	struct:cache	file:
+s	cache_sim.c	/^	unsigned int s; 		\/\/ log_2(set associativity)$/;"	m	struct:cache	file:
+set	cache_sim.c	/^struct set {$/;"	s	file:
+set_count	cache_sim.c	/^	unsigned int set_count;$/;"	m	struct:cache	file:
+set_count	cache_sim.c	/^static int set_count(struct cache *cache)$/;"	f	file:	signature:(struct cache *cache)
+sets	cache_sim.c	/^	struct set *sets;		\/\/ array addressed by index$/;"	m	struct:cache	typeref:struct:cache::set	file:
+split_address	cache_sim.c	/^static void split_address(struct access_params *a, struct cache *c, void *addr)$/;"	f	file:	signature:(struct access_params *a, struct cache *c, void *addr)
+tag	cache_sim.c	/^	int tag;$/;"	m	struct:access_params	file:
+tag	cache_sim.c	/^	unsigned int tag;$/;"	m	struct:cache_entry	file:
+total_accesses	cache_sim.c	/^static unsigned int total_accesses(struct cache *cache)$/;"	f	file:	signature:(struct cache *cache)
+total_storage	cache_sim.c	/^	size_t total_storage;		\/\/ bits$/;"	m	struct:cache	file:
+write_count	cache_sim.c	/^	unsigned int write_count;$/;"	m	struct:cache	file:
+write_misses	cache_sim.c	/^	unsigned int write_misses;$/;"	m	struct:cache	file:
+writebacks	cache_sim.c	/^	size_t writebacks;		\/\/ bytes$/;"	m	struct:cache	file:
