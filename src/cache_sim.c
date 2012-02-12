@@ -14,10 +14,15 @@ enum access_type {
 	WRITE
 };
 
-struct access_params {
+struct decoded_address {
 	unsigned tag;
 	unsigned index;
 	unsigned offset;
+};
+
+struct access_params {
+	enum access_type type;
+	struct decoded_address addr;
 };
 
 enum cache_level {
@@ -154,44 +159,58 @@ static unsigned int miss_penalty(struct cache *cache)
 }
 
 /* splits address into tag, index, offset */
-static void decode_address(struct access_params *access,
-			   struct cache *cache, void *addr)
+static void decode_address(struct decoded_address *d_addr,
+			   unsigned long addr,
+			   struct cache *cache)
 {
-	memset(access, 0, sizeof(*access));
-	access->tag = addr >> (cache->c - cache->s);
-	void *mask = (1 << (access->c - access->s)) - 1;
-	access->index = (addr & mask) >> access->b;
-	mask = (1 << access->b) - 1;
-	access->offset = addr & mask;
+	memset(d_addr, 0, sizeof(*d_addr));
+	d_addr->tag = addr >> (cache->c - cache->s);
+	unsigned long mask = (1 << (cache->c - cache->s)) - 1;
+	d_addr->index = (addr & mask) >> cache->b;
+	mask = (1 << cache->b) - 1;
+	d_addr->offset = addr & mask;
 }
 
 /* attempts to access the data within a set */
-static int set_access(struct set *set, char c, struct access_params *access)
+static int set_access(struct set *set, int access_type, struct decoded_address *addr)
 {
 	fprintf(stderr, "set_access() not implemented"); exit(1); /* TODO */
 }
 
-static void cache_access(struct cache *cache, char c, void *addr)
+static void cache_access(struct cache *cache, enum access_type type, unsigned long addr)
 {
 	if (!cache)
 		return;
-	struct access_params access;
-	decode_address(&access, cache, addr);
-	struct set *set = &cache->sets[access.index];
-	int available = set_access(set, c, &access);
+	struct decoded_address decoded;
+	decode_address(&decoded, addr, cache);
+	struct set *set = &cache->sets[decoded.index];
+	int available = set_access(set, type, &decoded);
 	if (!available) {
-		cache_access(cache->next, c, addr);
+		cache_access(cache->next, type, addr);
 	}
-	switch (c) {
-	case 'w':
+	switch (type) {
+	case WRITE:
 		cache->write_count++;
 		break;
-	case 'r':
+	case READ:
 		cache->read_count++;
 		break;
 	}
-	if (cache->next)
-		cache_access(cache->next, c, addr);
+}
+
+/* returns the access_type specified by the char input */
+static int rw2access_type(char rw)
+{
+	switch (rw) {
+		case 'r':
+			return READ;
+			break;
+		case 'w':
+			return WRITE;
+			break;
+		default:
+			fail("invalid r/w input");
+	}
 }
 
 int main_(int argc, char const *argv[])
@@ -212,7 +231,7 @@ int main_(int argc, char const *argv[])
 	char rw;
 	while (!feof(stdin)) {
 		fscanf(stdin, "%c %p\n", &rw, &addr);
-		cache_access(caches, rw, addr);
+		cache_access(caches, rw2access_type(rw), (unsigned long) addr);
 	}
 
 	struct cache;
