@@ -91,7 +91,7 @@ static int blocks_per_set(struct cache *cache)
 }
 
 /* initialize block */
-static void cache_init(struct cache *cache, unsigned c, unsigned b, unsigned s)
+static void cache_init(struct cache *cache, int level, unsigned c, unsigned b, unsigned s)
 {
 	/* most values are 0 to start with */
 	memset(cache, 0, sizeof(*cache));
@@ -99,6 +99,7 @@ static void cache_init(struct cache *cache, unsigned c, unsigned b, unsigned s)
 	cache->c = c;
 	cache->b = b;
 	cache->s = s;
+	cache->level = level;
 
 	/* Allocate all the memory at once. The buffer is structured as set0 for
 	 * the cache, followed by set1, set2, ..., followed by all the entries
@@ -180,27 +181,39 @@ static void cache_access(struct cache *cache, char c, void *addr)
 	}
 	switch (c) {
 	case 'w':
-		printf("Write");
+		cache->write_count++;
 		break;
 	case 'r':
-		printf("Read");
+		cache->read_count++;
 		break;
 	}
-	printf("\t%p\n", addr);
+	if (cache->next)
+		cache_access(cache->next, c, addr);
 }
 
 int main(int argc, char const *argv[])
 {
-	int num_access = 0;
+	struct cache caches[CACHE_COUNT];
+
+	int C[] = {9, 10, 11};
+	int B[] = {6, 6, 6};
+	int S[] = {2, 3, 4};
+	for (int i = 0; i < CACHE_COUNT; ++i) {
+		int level = i + 1;
+		cache_init(&caches[i], level, C[i], B[i], S[i]);
+		caches[i].next = &caches[i+1];
+	}
+	caches[CACHE_COUNT - 1].next = NULL;
+
 	void *addr;
 	char rw;
 	while (!feof(stdin)) {
-		num_access++;
 		fscanf(stdin, "%c %p\n", &rw, &addr);
-		cache_access(rw, addr);
+		cache_access(caches, rw, addr);
 	}
 
 	struct cache;
-	printf("Total number of accesses: %d", num_access);
-	printf("Cache misses: %d", cache.read_count);
+	printf("Total number of accesses: %d\n", total_accesses(&caches[0]));
+	printf("Total number of reads: %d\n", caches[0].read_count);
+	printf("Total number of writes: %d\n", caches[0].write_count);
 }
