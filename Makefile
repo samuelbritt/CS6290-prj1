@@ -1,15 +1,21 @@
-TGT = cache_sim
-CC = gcc
-CFLAGS = -std=gnu99 -Wall -pedantic
+# Top level make
+ROOT = $(shell pwd)
+export ROOT
 
-SRC = src/cache_sim.c
-OBJ = src/cache_sim.o
+include Rules.mk
 
-all: $(TGT)
+SRC_DIRS = src
+TEST_DIRS = tests
 
-$(TGT): src/cache_sim.o
-	$(LINK.c) -o $@ $^ 
+all:
+	@for dir in $(SRC_DIRS); do $(MAKE) -C $$dir; done
+test:
+	@$(MAKE)
+	@for dir in $(TEST_DIRS); do $(MAKE) -C $$dir; done
+	@for dir in $(TEST_DIRS); \
+		do echo ; \
+		$$dir/tests; \
+		done
+clean:
+	@for dir in $(SRC_DIRS) $(TEST_DIRS); do $(MAKE) -C $$dir clean; done
 
-$(OBJ): $(SRC)
-
-*.o : *.c

@@ -2,3 +2,4 @@
 .project
 cache_sim
 tags
+tests/tests

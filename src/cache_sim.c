@@ -238,4 +238,6 @@ int main_(int argc, char const *argv[])
 	printf("Total number of accesses: %d\n", total_accesses(&caches[0]));
 	printf("Total number of reads: %d\n", caches[0].read_count);
 	printf("Total number of writes: %d\n", caches[0].write_count);
+
+	return 0;
 }
