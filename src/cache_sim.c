@@ -159,7 +159,7 @@ static void decode_address(struct access_params *access,
 {
 	memset(access, 0, sizeof(*access));
 	access->tag = addr >> (cache->c - cache->s);
-	unsigned mask = (1 << (access->c - access->s)) - 1;
+	void *mask = (1 << (access->c - access->s)) - 1;
 	access->index = (addr & mask) >> access->b;
 	mask = (1 << access->b) - 1;
 	access->offset = addr & mask;
