@@ -180,10 +180,21 @@ static void cache_access(struct cache *cache, enum access_type type, unsigned lo
 	struct decoded_address d_addr;
 	decode_address(&d_addr, addr, cache);
 	struct set *set = &cache->sets[d_addr.index];
-	int available = set_access(set, type, &d_addr);
+	int available = set_access(set, type, &d_addr); // returns 1 if available
 	if (!available) {
 		cache->miss_count[type]++;
 		cache_access(cache->next, type, addr);
+		set_write(set, type, &d_addr); // does what it needs to write the word
+		// to the $: will potentially evict via LRU and cause a write-back
+		// to memory. Returns 1 if causes a writeback? Move `writebacks`
+		// to the set structure, and calculate the total writebacks
+		// on demand?
+
+		// do writebacks affect lower level caches? data transfer?
+		// maybe:
+		int writeback = set_write();
+		if (writeback)
+			writeback(cache->next, addr);
 	}
 }
 
