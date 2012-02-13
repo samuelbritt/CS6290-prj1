@@ -135,11 +135,15 @@ static float miss_rate(struct cache *cache)
 	return cache->miss_count[READ] / ((float) cache->access_count[READ]);
 }
 
+static float hit_time(struct cache *cache)
+{
+	return 2 * cache->level + 0.2 * cache->level * cache->s;
+}
+
 static unsigned int miss_penalty(struct cache *cache);
 static unsigned int average_access_time(struct cache *cache)
 {
-	unsigned hit_time = 2 * cache->level + 0.2 * cache->level * cache->s;
-	return hit_time + miss_rate(cache) * miss_penalty(cache);
+	return hit_time(cache) + miss_rate(cache) * miss_penalty(cache);
 }
 
 /* returns the miss penalty in nanoseconds. recursively calls
