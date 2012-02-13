@@ -10,8 +10,8 @@
 #define DIRTY 0x02
 
 enum access_type {
-	READ = 0,
-	WRITE
+	READ_ACCESS = 0,
+	WRITE_ACCESS
 };
 
 struct decoded_address {
@@ -127,12 +127,12 @@ static void cache_init(struct cache *cache, int level, unsigned c, unsigned b, u
 /* functions to perform statistics on caches */
 static unsigned int total_accesses(struct cache *cache)
 {
-	return cache->access_count[READ] + cache->access_count[WRITE];
+	return cache->access_count[READ_ACCESS] + cache->access_count[WRITE_ACCESS];
 }
 
 static float miss_rate(struct cache *cache)
 {
-	return cache->miss_count[READ] / ((float) cache->access_count[READ]);
+	return cache->miss_count[READ_ACCESS] / ((float) cache->access_count[READ_ACCESS]);
 }
 
 static float hit_time(struct cache *cache)
@@ -196,10 +196,10 @@ static int rw2access_type(char rw)
 {
 	switch (rw) {
 		case 'r':
-			return READ;
+			return READ_ACCESS;
 			break;
 		case 'w':
-			return WRITE;
+			return WRITE_ACCESS;
 			break;
 		default:
 			fail("invalid r/w input");
