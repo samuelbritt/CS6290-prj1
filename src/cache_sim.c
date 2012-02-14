@@ -58,12 +58,11 @@ struct cache {
 	unsigned int set_count;
 	struct set *sets;		// array addressed by index
 
-	unsigned int average_access_time; // nanoseconds
 	unsigned int access_count[2];	// indexed by enum access_type
 	unsigned int miss_count[2];	// indexed by enum access_type
 	size_t writebacks;		// bytes
 	size_t data_transferred;	// byte
-	size_t total_storage;		// bits
+	unsigned long total_storage;	// bits
 };
 
 #define fail(msg) do {			\
@@ -138,6 +137,16 @@ static unsigned int total_accesses(struct cache *cache)
 	        + cache->access_count[WRITE_ACCESS];
 }
 
+static unsigned int total_misses(struct cache *cache)
+{
+	return cache->miss_count[READ_ACCESS] + cache->miss_count[WRITE_ACCESS];
+}
+
+static size_t total_storage(struct cache *cache)
+{
+	return 0;
+}
+
 static float miss_rate(struct cache *cache)
 {
 	return cache->miss_count[READ_ACCESS]
@@ -170,9 +179,9 @@ static unsigned int miss_penalty(struct cache *cache)
 static void *encode_address(struct decoded_address *d_addr, struct cache *cache)
 {
 	unsigned long addr =
-		(d_addr->tag << (cache->c - cache->s) |
-		 d_addr->index << (cache->b) |
-		 d_addr->offset);
+	        (d_addr->tag << (cache->c - cache->s) |
+	                d_addr->index << (cache->b) |
+	                d_addr->offset);
 	return (void *) addr;
 }
 
@@ -306,7 +315,7 @@ int main_(int argc, char const *argv[])
 	int B[] = {
 	        6, 6, 6 };
 	int S[] = {
-	        2, 3, 4 };
+	        0, 0, 0 };
 	for (int i = 0; i < CACHE_COUNT; ++i) {
 		int level = i + 1;
 		cache_init(&caches[i], level, C[i], B[i], S[i]);
@@ -321,12 +330,25 @@ int main_(int argc, char const *argv[])
 		cache_access(caches, rw2access_type(rw), addr);
 	}
 
-	struct cache;
-	printf("Total number of accesses: %d\n", total_accesses(&caches[0]));
-	printf("Total number of reads: %d\n",
-	       caches[0].access_count[READ_ACCESS]);
-	printf("Total number of writes: %d\n",
-	       caches[0].access_count[WRITE_ACCESS]);
+	printf("AAT: %d ns\n", average_access_time(caches));
+	printf("Total Storage (Bytes): %lu\n", total_storage(caches));
+
+	struct cache *c;
+	for (int i = 0; i < CACHE_COUNT; ++i) {
+		c = &caches[i];
+		printf("\n");
+		printf("L%d Cache\n", c->level);
+		printf("Accesses: %d\n", total_accesses(c));
+		printf("Reads: %d\n", c->access_count[READ_ACCESS]);
+		printf("Read Misses: %d\n", c->miss_count[READ_ACCESS]);
+		printf("Writes: %d\n", c->access_count[WRITE_ACCESS]);
+		printf("Write Misses: %d\n", c->miss_count[WRITE_ACCESS]);
+		printf("Writebacks (Bytes): %zd\n", c->writebacks);
+		printf("Data Transferred (Bytes): %zd\n", c->data_transferred);
+		printf("Total Misses: %d\n", total_misses(c));
+		printf("Miss Rate: %0.6g\n", miss_rate(c));
+		printf("Total Storage (Bits): %lu\n", c->total_storage);
+	}
 
 	return 0;
 }

@@ -3,6 +3,21 @@
 
 #include <cache_sim.c>
 
+void test_validate(CuTest *tc) {
+	/* validates all the files in tests/validation */
+	char *scripts[] = {
+		"tests/validation/gcc_validation.sh",
+		"tests/validation/go_validation.sh",
+		"tests/validation/mcf_validation.sh",
+		""
+	};
+	char *s;
+	int i = 0;
+	while (*(s = scripts[i++]) != '\0')
+		system(s);
+
+}
+
 void test_decode_address(CuTest *tc)
 {
 	struct decoded_address d;
@@ -88,19 +103,27 @@ void test_set_access(CuTest *tc) {
 	int mid = set->entry_count / 2;
 	set->entries[mid].age = 250;
 	set->entries[mid].tag = 42;
-	int ret = set_access(set, access_type, &addr, &writeback_tag);
-	CuAssertIntEquals(tc, -1, ret);
-	CuAssertIntEquals(tc, 42, writeback_tag);
+	int hit = set_access(set, addr.tag, READ_ACCESS);
+	CuAssertIntEquals(tc, 0, hit);
 	CuAssertIntEquals(tc, 251, set->entries[mid].age);
+	CuAssertTrue(tc, set->entries[mid].flags & VALID);
+	CuAssertTrue(tc, !(set->entries[mid].flags & DIRTY));
 
-	set->entries[mid].tag = addr.tag;
-	ret = set_access(set, access_type, &addr, &writeback_tag);
-	CuAssertIntEquals(tc, 0, ret);
+	set->entries[mid].tag = 42;
+	addr.tag = 43;
+	hit = set_access(set, addr.tag, WRITE_ACCESS);
+	CuAssertIntEquals(tc, 0, hit);
+	CuAssertIntEquals(tc, 252, set->entries[mid].age);
+	CuAssertTrue(tc, set->entries[mid].flags & VALID);
+	CuAssertTrue(tc, !(set->entries[mid].flags & DIRTY));
+
+	set->entries[mid].tag = 42;
+	addr.tag = 42;
+	hit = set_access(set, addr.tag, WRITE_ACCESS);
+	CuAssertIntEquals(tc, 1, hit);
 	CuAssertIntEquals(tc, 0, set->entries[mid].age);
-
-	set->entries[mid].flags &= ~VALID;
-	ret = set_access(set, access_type, &addr, &writeback_tag);
-	CuAssertIntEquals(tc, 1, ret);
+	CuAssertTrue(tc, set->entries[mid].flags & VALID);
+	CuAssertTrue(tc, (set->entries[mid].flags & DIRTY));
 }
 
 CuSuite* test_cache_sim_get_suite()
@@ -111,6 +134,7 @@ CuSuite* test_cache_sim_get_suite()
 	SUITE_ADD_TEST(suite, test_decode_address);
 	SUITE_ADD_TEST(suite, test_encode_address);
 	SUITE_ADD_TEST(suite, test_set_access);
+	SUITE_ADD_TEST(suite, test_validate);
 
 	return suite;
 }
