@@ -3,6 +3,10 @@
 #include <string.h>
 #include <limits.h>
 
+typedef int bool;
+#define False 0;
+#define True 1;
+
 #define CACHE_COUNT 3
 
 /* flags for block */
@@ -40,7 +44,9 @@ struct cache_entry {
 
 struct set {
 	unsigned int entry_count;
-	struct cache_entry *entries;
+	struct cache_entry *entries;	// array of entries
+	struct cache_entry *empty;	// first empty slot
+	struct cache_entry *LRU;	// current LRU entry
 };
 
 struct cache {
@@ -92,7 +98,8 @@ static int blocks_per_set(struct cache *cache)
 }
 
 /* initialize block */
-static void cache_init(struct cache *cache, int level, unsigned c, unsigned b, unsigned s)
+static void cache_init(struct cache *cache, int level, unsigned c, unsigned b,
+                       unsigned s)
 {
 	/* most values are 0 to start with */
 	memset(cache, 0, sizeof(*cache));
@@ -127,12 +134,14 @@ static void cache_init(struct cache *cache, int level, unsigned c, unsigned b, u
 /* functions to perform statistics on caches */
 static unsigned int total_accesses(struct cache *cache)
 {
-	return cache->access_count[READ_ACCESS] + cache->access_count[WRITE_ACCESS];
+	return cache->access_count[READ_ACCESS]
+	        + cache->access_count[WRITE_ACCESS];
 }
 
 static float miss_rate(struct cache *cache)
 {
-	return cache->miss_count[READ_ACCESS] / ((float) cache->access_count[READ_ACCESS]);
+	return cache->miss_count[READ_ACCESS]
+	        / ((float) cache->access_count[READ_ACCESS]);
 }
 
 static float hit_time(struct cache *cache)
@@ -157,26 +166,107 @@ static unsigned int miss_penalty(struct cache *cache)
 	}
 }
 
+/* combines an address from its tag, index, and offset into a full pointer */
+static void *encode_address(struct decoded_address *d_addr, struct cache *cache)
+{
+	unsigned long addr =
+		(d_addr->tag << (cache->c - cache->s) |
+		 d_addr->index << (cache->b) |
+		 d_addr->offset);
+	return (void *) addr;
+}
+
 /* splits address into tag, index, offset */
 static void decode_address(struct decoded_address *d_addr,
-			   unsigned long addr,
-			   struct cache *cache)
+                           void *addr,
+                           struct cache *cache)
 {
+	unsigned long addr_ = (unsigned long) addr; // can't do bit-ops on a pointer
 	memset(d_addr, 0, sizeof(*d_addr));
-	d_addr->tag = addr >> (cache->c - cache->s);
+	d_addr->tag = addr_ >> (cache->c - cache->s);
 	unsigned long mask = (1 << (cache->c - cache->s)) - 1;
-	d_addr->index = (addr & mask) >> cache->b;
+	d_addr->index = (addr_ & mask) >> cache->b;
 	mask = (1 << cache->b) - 1;
-	d_addr->offset = addr & mask;
+	d_addr->offset = addr_ & mask;
 }
 
-/* attempts to access the data within a set */
-static int set_access(struct set *set, int access_type, struct decoded_address *addr)
+static bool entry_access(struct cache_entry *e, unsigned tag,
+                         enum access_type type)
 {
-	fprintf(stderr, "set_access() not implemented"); exit(1); /* TODO */
+	if (!(e->flags & VALID))
+		return False;
+
+	e->age++;
+	if (e->tag == tag) {
+		e->age = 0;
+		if (type == WRITE_ACCESS)
+			e->flags |= DIRTY;
+		return True;
+	}
+	return False;
+
 }
 
-static void cache_access(struct cache *cache, enum access_type type, unsigned long addr)
+static bool set_access(struct set *set, unsigned tag, enum access_type type)
+{
+	bool hit = False;
+	set->empty = NULL;
+	set->LRU = NULL;
+	struct cache_entry *e;
+	for (int i = 0; i < set->entry_count; ++i) {
+		e = &set->entries[i];
+
+		hit = entry_access(e, tag, type) || hit;
+
+		if (!(e->flags & VALID)) {
+			set->empty = e;
+			continue;
+		}
+
+		if ((!set->LRU) || (e->age > set->LRU->age))
+			set->LRU = e;
+	}
+	return hit;
+}
+
+static struct cache_entry *entry_to_evict(struct set *set)
+{
+	if (set->empty)
+		return set->empty;
+	if (set->LRU)
+		return set->LRU;
+	fail("Cache should always have something to evict");
+	return NULL;
+}
+
+static void cache_access(struct cache *c, enum access_type type, void *addr);
+static void cache_miss(struct cache *cache, enum access_type type,
+                       struct set *set,
+                       struct decoded_address *access_addr)
+{
+	cache->miss_count[type]++;
+	cache_access(cache->next, READ_ACCESS,
+	             encode_address(access_addr, cache));
+
+	struct cache_entry *e = entry_to_evict(set);
+	if (e->flags & (VALID | DIRTY)) {
+		// write the contents of the evicted address to the
+		// next level cache
+		struct decoded_address evict_addr;
+		evict_addr.tag = e->tag;
+		evict_addr.index = access_addr->index;
+		evict_addr.offset = access_addr->offset;
+		cache_access(cache->next, WRITE_ACCESS,
+		             encode_address(&evict_addr, cache));
+	}
+
+	e->tag = access_addr->tag;
+	e->age = 0;
+	e->flags = VALID & ~DIRTY;
+
+}
+
+static void cache_access(struct cache *cache, enum access_type type, void *addr)
 {
 	if (!cache)
 		return;
@@ -184,37 +274,25 @@ static void cache_access(struct cache *cache, enum access_type type, unsigned lo
 	struct decoded_address d_addr;
 	decode_address(&d_addr, addr, cache);
 	struct set *set = &cache->sets[d_addr.index];
-	int available = set_access(set, type, &d_addr); // returns 1 if available
-	if (!available) {
-		cache->miss_count[type]++;
-		cache_access(cache->next, type, addr);
-		set_write(set, type, &d_addr); // does what it needs to write the word
-		// to the $: will potentially evict via LRU and cause a write-back
-		// to memory. Returns 1 if causes a writeback? Move `writebacks`
-		// to the set structure, and calculate the total writebacks
-		// on demand?
 
-		// do writebacks affect lower level caches? data transfer?
-		// maybe:
-		int writeback = set_write();
-		if (writeback)
-			writeback(cache->next, addr);
-	}
+	bool hit = set_access(set, d_addr.tag, type);
+	if (!hit)
+		cache_miss(cache, type, set, &d_addr);
 }
 
 /* returns the access_type specified by the char input. Returns -1 on error */
 static int rw2access_type(char rw)
 {
 	switch (rw) {
-		case 'r':
-			return READ_ACCESS;
-			break;
-		case 'w':
-			return WRITE_ACCESS;
-			break;
-		default:
-			fail("invalid r/w input");
-			break;
+	case 'r':
+		return READ_ACCESS;
+		break;
+	case 'w':
+		return WRITE_ACCESS;
+		break;
+	default:
+		fail("invalid r/w input");
+		break;
 	}
 	return -1;
 }
@@ -223,13 +301,16 @@ int main_(int argc, char const *argv[])
 {
 	struct cache caches[CACHE_COUNT];
 
-	int C[] = {9, 10, 11};
-	int B[] = {6, 6, 6};
-	int S[] = {2, 3, 4};
+	int C[] = {
+	        9, 10, 11 };
+	int B[] = {
+	        6, 6, 6 };
+	int S[] = {
+	        2, 3, 4 };
 	for (int i = 0; i < CACHE_COUNT; ++i) {
 		int level = i + 1;
 		cache_init(&caches[i], level, C[i], B[i], S[i]);
-		caches[i].next = &caches[i+1];
+		caches[i].next = &caches[i + 1];
 	}
 	caches[CACHE_COUNT - 1].next = NULL;
 
@@ -237,13 +318,15 @@ int main_(int argc, char const *argv[])
 	char rw;
 	while (!feof(stdin)) {
 		fscanf(stdin, "%c %p\n", &rw, &addr);
-		cache_access(caches, rw2access_type(rw), (unsigned long) addr);
+		cache_access(caches, rw2access_type(rw), addr);
 	}
 
 	struct cache;
 	printf("Total number of accesses: %d\n", total_accesses(&caches[0]));
-	printf("Total number of reads: %d\n", caches[0].read_count);
-	printf("Total number of writes: %d\n", caches[0].write_count);
+	printf("Total number of reads: %d\n",
+	       caches[0].access_count[READ_ACCESS]);
+	printf("Total number of writes: %d\n",
+	       caches[0].access_count[WRITE_ACCESS]);
 
 	return 0;
 }

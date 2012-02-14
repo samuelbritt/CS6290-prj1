@@ -6,7 +6,7 @@ INCDIRS = ../src
 
 INCLUDES = $(INCDIRS:%=-I%)
 
-SRC = test_cache_sim.c tests.c CuTest.c
+SRC = ../src/cache_sim.c test_cache_sim.c tests.c CuTest.c
 OBJ = $(SRC:%.c=%.o)
 
 all: $(TGT)
