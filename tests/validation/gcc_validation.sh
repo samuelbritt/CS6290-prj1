@@ -1,4 +1,4 @@
-cat validation/gcc.txt
+cat tests/validation/gcc_validation.txt
 
 echo
 echo "--------------"
