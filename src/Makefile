@@ -10,7 +10,7 @@ all: $(TGT)
 $(TGT): $(OBJ)
 	$(LINK)
 
-*.o : *.c
+%.o : %.c
 	$(COMP)
 
 clean:
