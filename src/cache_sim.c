@@ -208,6 +208,29 @@ static int rw2access_type(char rw)
 	return -1;
 }
 
+/* Parses the command line arguments. The program takes 9 required arguments,
+ * c_i, b_i, s_i, for i = 1..3 being the cache levels. It also takes one
+ * optional argument, `-f <FILENAME>`, where FILENAME is the name of the input
+ * file. If the `-f` argument is not specified, it reads from stdin.
+ */
+static void parse_args(int argc, char const *argv[]) {
+	int opt;
+	char *filename = NULL;
+
+	char *usage = "Usage: %s c1 b1 s1 c2 b2 s2 c3 b3 s3 [-f <INPUT_FILE>]\n"
+	while ((opt = getopt(argc, argv, "f:")) != -1) {
+		switch (opt) {
+		case 'f':
+			filename = optarg;
+			break;
+		default:
+			fail(usage);
+		}
+	}
+
+	if (argc - optind > 9)
+}
+
 int main_(int argc, char const *argv[])
 {
 	struct cache caches[CACHE_COUNT];
