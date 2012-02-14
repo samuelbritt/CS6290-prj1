@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <getopt.h>
 
 #define CACHE_COUNT 3
 
@@ -208,19 +209,25 @@ static int rw2access_type(char rw)
 	return -1;
 }
 
+struct options {
+	FILE *input_file;
+	int *cache_params;
+};
+
 /* Parses the command line arguments. The program takes 9 required arguments,
  * c_i, b_i, s_i, for i = 1..3 being the cache levels. It also takes one
  * optional argument, `-f <FILENAME>`, where FILENAME is the name of the input
  * file. If the `-f` argument is not specified, it reads from stdin.
  */
-static void parse_args(int argc, char const *argv[]) {
-	int opt;
+static void parse_args(int argc, char *argv[], struct options *options) {
+	char *usage =
+		"Usage: %s c1 b1 s1 c2 b2 s2 c3 b3 s3 [-f <INPUT_FILE>]\n";
 	char *filename = NULL;
-
-	char *usage = "Usage: %s c1 b1 s1 c2 b2 s2 c3 b3 s3 [-f <INPUT_FILE>]\n"
+	int opt;
 	while ((opt = getopt(argc, argv, "f:")) != -1) {
 		switch (opt) {
 		case 'f':
+			printf("setting filename\n");
 			filename = optarg;
 			break;
 		default:
@@ -228,13 +235,31 @@ static void parse_args(int argc, char const *argv[]) {
 		}
 	}
 
-	if (argc - optind > 9)
+	if ((argc - optind) < CACHE_COUNT * 3)
+		fail(usage);
+	for (int i = optind; i < argc; ++i)
+	{
+		options->cache_params[i] = atoi(argv[i]);
+	}
+
+	if (filename) {
+		options->input_file = fopen(filename, "r");
+		if (!options->input_file)
+			fail(usage);
+	} else {
+		options->input_file = stdin;
+	}
 }
 
-int main_(int argc, char const *argv[])
+int main_(int argc, char *argv[])
 {
-	struct cache caches[CACHE_COUNT];
+	struct options options;
+	int cache_params[CACHE_COUNT * 3];
+	options.cache_params = cache_params;
+	options.input_file = NULL;
+	parse_args(argc, argv, &options);
 
+	struct cache caches[CACHE_COUNT];
 	int C[] = {9, 10, 11};
 	int B[] = {6, 6, 6};
 	int S[] = {2, 3, 4};
@@ -247,15 +272,10 @@ int main_(int argc, char const *argv[])
 
 	void *addr;
 	char rw;
-	while (!feof(stdin)) {
+	while (!feof(options.input_file)) {
 		fscanf(stdin, "%c %p\n", &rw, &addr);
 		cache_access(caches, rw2access_type(rw), (unsigned long) addr);
 	}
-
-	struct cache;
-	printf("Total number of accesses: %d\n", total_accesses(&caches[0]));
-	printf("Total number of reads: %d\n", caches[0].read_count);
-	printf("Total number of writes: %d\n", caches[0].write_count);
 
 	return 0;
 }
