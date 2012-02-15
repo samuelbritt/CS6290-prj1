@@ -331,7 +331,7 @@ int main_(int argc, char const *argv[])
 	}
 
 	printf("AAT: %d ns\n", average_access_time(caches));
-	printf("Total Storage (Bytes): %lu\n", total_storage(caches));
+	printf("Total Storage (Bytes): %zd\n", total_storage(caches));
 
 	struct cache *c;
 	for (int i = 0; i < CACHE_COUNT; ++i) {
