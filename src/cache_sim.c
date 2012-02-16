@@ -352,12 +352,11 @@ int main_(int argc, char *argv[])
 	}
 
 	printf("Parameters:\n");
-	int j = 0;
 	for (int i = 0; i < CACHE_COUNT; i++)
 	{
-		printf("C%d: %d", i, j++);
-		printf("B%d: %d", i, j++);
-		printf("S%d: %d", i, j++);
+		printf("C%d: %d\n", caches[i].level, caches[i].c);
+		printf("B%d: %d\n", caches[i].level, caches[i].b);
+		printf("S%d: %d\n", caches[i].level, caches[i].s);
 	}
 
 	printf("AAT: %d ns\n", average_access_time(caches));
