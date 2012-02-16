@@ -1,7 +1,3 @@
-cat tests/validation/gcc_validation.txt
+valid=tests/validation/gcc_validation.txt
 
-echo
-echo "--------------"
-echo
-
-./cache_sim 9 6 0 10 6 0 11 6 0 < traces/gcc_trace_aligned.txt
+./cache_sim 9 6 0 10 6 0 11 6 0 < traces/gcc_trace_aligned.txt | diff "$valid" -
