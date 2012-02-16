@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <getopt.h>
 
 #define CACHE_COUNT 3
 
@@ -208,16 +209,35 @@ static int rw2access_type(char rw)
 	return -1;
 }
 
-int main_(int argc, char const *argv[])
+/* Parses the command line arguments. The program takes 9 required arguments,
+ * c_i, b_i, s_i, for i = 1..3 being the cache levels.
+ */
+static void parse_args(int argc, char *argv[], int *cache_params)
 {
-	struct cache caches[CACHE_COUNT];
+	char *usage_fmt = "Usage: %s c1 b1 s1 c2 b2 s2 c3 b3 s3\n";
+	if (argc < 1 + CACHE_COUNT * 3) {
+		fprintf(stderr, usage_fmt, argv[0]);
+		exit(EXIT_FAILURE);
+	}
 
-	int C[] = {9, 10, 11};
-	int B[] = {6, 6, 6};
-	int S[] = {2, 3, 4};
+	for (int i = 1; i < argc; ++i) {
+		cache_params[i - 1] = atoi(argv[i]);
+	}
+}
+
+int main_(int argc, char *argv[])
+{
+	int cache_params[CACHE_COUNT * 3];
+	parse_args(argc, argv, cache_params);
+
+	struct cache caches[CACHE_COUNT];
+	int j = 0;
 	for (int i = 0; i < CACHE_COUNT; ++i) {
 		int level = i + 1;
-		cache_init(&caches[i], level, C[i], B[i], S[i]);
+		int c = cache_params[j++];
+		int b = cache_params[j++];
+		int s = cache_params[j++];
+		cache_init(&caches[i], level, c, b, s);
 		caches[i].next = &caches[i+1];
 	}
 	caches[CACHE_COUNT - 1].next = NULL;
@@ -228,11 +248,6 @@ int main_(int argc, char const *argv[])
 		fscanf(stdin, "%c %p\n", &rw, &addr);
 		cache_access(caches, rw2access_type(rw), (unsigned long) addr);
 	}
-
-	struct cache;
-	printf("Total number of accesses: %d\n", total_accesses(&caches[0]));
-	printf("Total number of reads: %d\n", caches[0].read_count);
-	printf("Total number of writes: %d\n", caches[0].write_count);
 
 	return 0;
 }
