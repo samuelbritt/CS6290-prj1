@@ -258,9 +258,6 @@ static void cache_miss(struct cache *cache, enum access_type type,
                        struct decoded_address *access_addr)
 {
 	cache->miss_count[type]++;
-	cache_access(cache->next, READ_ACCESS,
-	             encode_address(access_addr, cache));
-
 	struct cache_entry *e = entry_to_evict(set);
 	if ((e->flags & VALID) && (e->flags & DIRTY)) {
 		// write the contents of the evicted address to the
@@ -276,8 +273,14 @@ static void cache_miss(struct cache *cache, enum access_type type,
 
 	e->tag = access_addr->tag;
 	e->age = 0;
-	e->flags = VALID & ~DIRTY;
+	e->flags = VALID;
 
+	if (type == READ_ACCESS) {
+		cache_access(cache->next, READ_ACCESS,
+			     encode_address(access_addr, cache));
+	} else {
+		e->flags |= DIRTY;
+	}
 }
 
 static void cache_access(struct cache *cache, enum access_type type, void *addr)
