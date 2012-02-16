@@ -20,11 +20,6 @@ struct decoded_address {
 	unsigned offset;
 };
 
-struct access_params {
-	enum access_type type;
-	struct decoded_address addr;
-};
-
 enum cache_level {
 	L1 = 1,
 	L2,
