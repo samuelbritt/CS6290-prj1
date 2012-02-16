@@ -209,53 +209,42 @@ static int rw2access_type(char rw)
 	return -1;
 }
 
-struct options {
-	FILE *input_file;
-	int *cache_params;
-};
-
 /* Parses the command line arguments. The program takes 9 required arguments,
- * c_i, b_i, s_i, for i = 1..3 being the cache levels. It also takes one
- * optional argument, `-f <FILENAME>`, where FILENAME is the name of the input
- * file. If the `-f` argument is not specified, it reads from stdin.
+ * c_i, b_i, s_i, for i = 1..3 being the cache levels.
  */
-static void parse_args(int argc, char *argv[], struct options *options)
+static void parse_args(int argc, char *argv[], int *cache_params)
 {
 	char *usage_fmt = "Usage: %s c1 b1 s1 c2 b2 s2 c3 b3 s3\n";
-	char usage[strlen(usage_fmt) + strlen(argv[0])];
-	sprintf(usage, usage_fmt, argv[0]);
-
-	printf("%d\n", argc);
-	if (argc < 1 + CACHE_COUNT * 3)
-		fail(usage);
-	for (int i = 1; i < argc; ++i) {
-		options->cache_params[i] = atoi(argv[i]);
+	if (argc < 1 + CACHE_COUNT * 3) {
+		fprintf(stderr, usage_fmt, argv[0]);
+		exit(EXIT_FAILURE);
 	}
 
+	for (int i = 1; i < argc; ++i) {
+		cache_params[i - 1] = atoi(argv[i]);
+	}
 }
 
 int main_(int argc, char *argv[])
 {
-	struct options options;
 	int cache_params[CACHE_COUNT * 3];
-	options.cache_params = cache_params;
-	options.input_file = NULL;
-	parse_args(argc, argv, &options);
+	parse_args(argc, argv, cache_params);
 
 	struct cache caches[CACHE_COUNT];
-	int C[] = {9, 10, 11};
-	int B[] = {6, 6, 6};
-	int S[] = {2, 3, 4};
+	int j = 0;
 	for (int i = 0; i < CACHE_COUNT; ++i) {
 		int level = i + 1;
-		cache_init(&caches[i], level, C[i], B[i], S[i]);
+		int c = cache_params[j++];
+		int b = cache_params[j++];
+		int s = cache_params[j++];
+		cache_init(&caches[i], level, c, b, s);
 		caches[i].next = &caches[i+1];
 	}
 	caches[CACHE_COUNT - 1].next = NULL;
 
 	void *addr;
 	char rw;
-	while (!feof(options.input_file)) {
+	while (!feof(stdin)) {
 		fscanf(stdin, "%c %p\n", &rw, &addr);
 		cache_access(caches, rw2access_type(rw), (unsigned long) addr);
 	}
