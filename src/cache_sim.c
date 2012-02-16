@@ -9,10 +9,6 @@ typedef int bool;
 
 #define CACHE_COUNT 3
 
-/* flags for block */
-#define VALID 0x01
-#define DIRTY 0x02
-
 enum access_type {
 	READ_ACCESS = 0,
 	WRITE_ACCESS
@@ -35,6 +31,9 @@ enum cache_level {
 	L3,
 };
 
+/* flags for block */
+#define VALID 0x01
+#define DIRTY 0x02
 struct cache_entry {
 	unsigned int tag;
 	unsigned long age;
@@ -60,8 +59,8 @@ struct cache {
 
 	unsigned int access_count[2];	// indexed by enum access_type
 	unsigned int miss_count[2];	// indexed by enum access_type
-	size_t writebacks;		// bytes
-	size_t data_transferred;	// byte
+	unsigned int writebacks;	// number of writeback accesses
+	size_t data_transferred;	// bytes
 	unsigned long total_storage;	// bits
 };
 
@@ -94,6 +93,11 @@ static int set_count(struct cache *cache)
 static int blocks_per_set(struct cache *cache)
 {
 	return 1 << cache->s;
+}
+
+static size_t bytes_per_block(struct cache *cache)
+{
+	return 1 << cache->b;
 }
 
 /* initialize block */
@@ -140,6 +144,12 @@ static unsigned int total_accesses(struct cache *cache)
 static unsigned int total_misses(struct cache *cache)
 {
 	return cache->miss_count[READ_ACCESS] + cache->miss_count[WRITE_ACCESS];
+}
+
+/* returns writebacks in bytes */
+static size_t writebacks(struct cache *cache)
+{
+	return cache->writebacks * bytes_per_block(cache);
 }
 
 static size_t total_storage(struct cache *cache)
@@ -265,6 +275,7 @@ static void cache_miss(struct cache *cache, enum access_type type,
 		evict_addr.tag = e->tag;
 		evict_addr.index = access_addr->index;
 		evict_addr.offset = access_addr->offset;
+		cache->writebacks++;
 		cache_access(cache->next, WRITE_ACCESS,
 		             encode_address(&evict_addr, cache));
 	}
@@ -343,7 +354,7 @@ int main_(int argc, char const *argv[])
 		printf("Read Misses: %d\n", c->miss_count[READ_ACCESS]);
 		printf("Writes: %d\n", c->access_count[WRITE_ACCESS]);
 		printf("Write Misses: %d\n", c->miss_count[WRITE_ACCESS]);
-		printf("Writebacks (Bytes): %zd\n", c->writebacks);
+		printf("Writebacks (Bytes): %zd\n", writebacks(c));
 		printf("Data Transferred (Bytes): %zd\n", c->data_transferred);
 		printf("Total Misses: %d\n", total_misses(c));
 		printf("Miss Rate: %0.6g\n", miss_rate(c));
