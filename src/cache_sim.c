@@ -265,22 +265,20 @@ static void cache_miss(struct cache *cache, enum access_type type,
 		struct decoded_address evict_addr;
 		evict_addr.tag = e->tag;
 		evict_addr.index = access_addr->index;
-		evict_addr.offset = access_addr->offset;
+		evict_addr.offset = 0;
 		cache->writebacks++;
 		cache_access(cache->next, WRITE_ACCESS,
 		             encode_address(&evict_addr, cache));
 	}
 
+	cache_access(cache->next, READ_ACCESS, encode_address(access_addr,
+							      cache));
 	e->tag = access_addr->tag;
 	e->age = 0;
 	e->flags = VALID;
 
-	if (type == READ_ACCESS) {
-		cache_access(cache->next, READ_ACCESS,
-			     encode_address(access_addr, cache));
-	} else {
+	if (type == WRITE_ACCESS)
 		e->flags |= DIRTY;
-	}
 }
 
 static void cache_access(struct cache *cache, enum access_type type, void *addr)
