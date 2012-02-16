@@ -327,6 +327,40 @@ static void parse_args(int argc, char *argv[], int *cache_params)
 	}
 }
 
+void print_cache(struct cache *c)
+{
+	printf("L%d Cache\n", c->level);
+	printf("Accesses: %d\n", total_accesses(c));
+	printf("Reads: %d\n", c->access_count[READ_ACCESS]);
+	printf("Read Misses: %d\n", c->miss_count[READ_ACCESS]);
+	printf("Writes: %d\n", c->access_count[WRITE_ACCESS]);
+	printf("Write Misses: %d\n", c->miss_count[WRITE_ACCESS]);
+	printf("Writebacks (Bytes): %zd\n", writebacks(c));
+	printf("Data Transferred (Bytes): %zd\n", c->data_transferred);
+	printf("Total Misses: %d\n", total_misses(c));
+	printf("Miss Rate: %0.6g\n", miss_rate(c));
+	printf("Total Storage (Bits): %lu\n", c->total_storage);
+}
+
+void print_results(struct cache caches[])
+{
+	printf("Parameters:\n");
+	for (int i = 0; i < CACHE_COUNT; i++)
+	{
+		printf("C%d: %d\n", caches[i].level, caches[i].c);
+		printf("B%d: %d\n", caches[i].level, caches[i].b);
+		printf("S%d: %d\n", caches[i].level, caches[i].s);
+	}
+
+	printf("\nAAT: %d ns\n", average_access_time(caches));
+	printf("Total Storage (Bytes): %lu\n", total_storage(caches));
+
+	for (int i = 0; i < CACHE_COUNT; ++i) {
+		printf("\n");
+		print_cache(&caches[i]);
+	}
+}
+
 int main_(int argc, char *argv[])
 {
 	int cache_params[CACHE_COUNT * 3];
@@ -350,33 +384,6 @@ int main_(int argc, char *argv[])
 		fscanf(stdin, "%c %p\n", &rw, &addr);
 		cache_access(caches, rw2access_type(rw), addr);
 	}
-
-	printf("Parameters:\n");
-	for (int i = 0; i < CACHE_COUNT; i++)
-	{
-		printf("C%d: %d\n", caches[i].level, caches[i].c);
-		printf("B%d: %d\n", caches[i].level, caches[i].b);
-		printf("S%d: %d\n", caches[i].level, caches[i].s);
-	}
-
-	printf("AAT: %d ns\n", average_access_time(caches));
-	printf("Total Storage (Bytes): %lu\n", total_storage(caches));
-
-	struct cache *c;
-	for (int i = 0; i < CACHE_COUNT; ++i) {
-		c = &caches[i];
-		printf("\n");
-		printf("L%d Cache\n", c->level);
-		printf("Accesses: %d\n", total_accesses(c));
-		printf("Reads: %d\n", c->access_count[READ_ACCESS]);
-		printf("Read Misses: %d\n", c->miss_count[READ_ACCESS]);
-		printf("Writes: %d\n", c->access_count[WRITE_ACCESS]);
-		printf("Write Misses: %d\n", c->miss_count[WRITE_ACCESS]);
-		printf("Writebacks (Bytes): %zd\n", writebacks(c));
-		printf("Data Transferred (Bytes): %zd\n", c->data_transferred);
-		printf("Total Misses: %d\n", total_misses(c));
-		printf("Miss Rate: %0.6g\n", miss_rate(c));
-		printf("Total Storage (Bits): %lu\n", c->total_storage);
-	}
+	print_results(caches);
 	return 0;
 }
