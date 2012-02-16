@@ -212,18 +212,14 @@ static void decode_address(struct decoded_address *d_addr,
 static bool entry_access(struct cache_entry *e, unsigned tag,
                          enum access_type type)
 {
-	if (!(e->flags & VALID))
-		return False;
-
-	e->age++;
 	if (e->tag == tag) {
 		e->age = 0;
 		if (type == WRITE_ACCESS)
 			e->flags |= DIRTY;
 		return True;
 	}
+	e->age++;
 	return False;
-
 }
 
 static bool set_access(struct set *set, unsigned tag, enum access_type type)
@@ -234,14 +230,12 @@ static bool set_access(struct set *set, unsigned tag, enum access_type type)
 	struct cache_entry *e;
 	for (int i = 0; i < set->entry_count; ++i) {
 		e = &set->entries[i];
-
-		hit = entry_access(e, tag, type) || hit;
-
 		if (!(e->flags & VALID)) {
 			set->empty = e;
 			continue;
 		}
 
+		hit = entry_access(e, tag, type) || hit;
 		if ((!set->LRU) || (e->age > set->LRU->age))
 			set->LRU = e;
 	}
@@ -268,7 +262,7 @@ static void cache_miss(struct cache *cache, enum access_type type,
 	             encode_address(access_addr, cache));
 
 	struct cache_entry *e = entry_to_evict(set);
-	if (e->flags & (VALID | DIRTY)) {
+	if ((e->flags & VALID) && (e->flags & DIRTY)) {
 		// write the contents of the evicted address to the
 		// next level cache
 		struct decoded_address evict_addr;
@@ -339,6 +333,15 @@ int main_(int argc, char const *argv[])
 	while (!feof(stdin)) {
 		fscanf(stdin, "%c %p\n", &rw, &addr);
 		cache_access(caches, rw2access_type(rw), addr);
+	}
+
+	printf("Parameters:\n");
+	int j = 0;
+	for (int i = 0; i < CACHE_COUNT; i++)
+	{
+		printf("C%d: %d", i, j++);
+		printf("B%d: %d", i, j++);
+		printf("S%d: %d", i, j++);
 	}
 
 	printf("AAT: %d ns\n", average_access_time(caches));
