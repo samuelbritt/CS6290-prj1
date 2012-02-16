@@ -4,8 +4,8 @@ Sam Britt
 CS 6290 Project 1
 -----------------
 
-Type `make` to build the cache simulation application in the current directory.
+To build:
 
-Type `make test` to build and run the tests in the `tests/` directory.
-
-Type `make clean` to remove all compiled files.
+ - Type `make` to build the cache simulation application in the current directory.
+ - Type `make test` to build and run the tests in the `tests/` directory.
+ - Type `make clean` to remove all compiled files.
