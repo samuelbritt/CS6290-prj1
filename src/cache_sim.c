@@ -219,36 +219,19 @@ struct options {
  * optional argument, `-f <FILENAME>`, where FILENAME is the name of the input
  * file. If the `-f` argument is not specified, it reads from stdin.
  */
-static void parse_args(int argc, char *argv[], struct options *options) {
-	char *usage =
-		"Usage: %s c1 b1 s1 c2 b2 s2 c3 b3 s3 [-f <INPUT_FILE>]\n";
-	char *filename = NULL;
-	int opt;
-	while ((opt = getopt(argc, argv, "f:")) != -1) {
-		switch (opt) {
-		case 'f':
-			printf("setting filename\n");
-			filename = optarg;
-			break;
-		default:
-			fail(usage);
-		}
-	}
+static void parse_args(int argc, char *argv[], struct options *options)
+{
+	char *usage_fmt = "Usage: %s c1 b1 s1 c2 b2 s2 c3 b3 s3\n";
+	char usage[strlen(usage_fmt) + strlen(argv[0])];
+	sprintf(usage, usage_fmt, argv[0]);
 
-	if ((argc - optind) < CACHE_COUNT * 3)
+	printf("%d\n", argc);
+	if (argc < 1 + CACHE_COUNT * 3)
 		fail(usage);
-	for (int i = optind; i < argc; ++i)
-	{
+	for (int i = 1; i < argc; ++i) {
 		options->cache_params[i] = atoi(argv[i]);
 	}
 
-	if (filename) {
-		options->input_file = fopen(filename, "r");
-		if (!options->input_file)
-			fail(usage);
-	} else {
-		options->input_file = stdin;
-	}
 }
 
 int main_(int argc, char *argv[])
