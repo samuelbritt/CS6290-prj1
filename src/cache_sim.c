@@ -10,7 +10,7 @@ typedef int bool;
 #define CACHE_COUNT 3
 
 enum access_type {
-	READ_ACCESS = 0,
+	READ_ACCESS,
 	WRITE_ACCESS
 };
 
@@ -206,11 +206,11 @@ static void *encode_address(struct decoded_address *d_addr, struct cache *cache)
 }
 
 /* splits address into tag, index, offset */
-static void decode_address(struct decoded_address *d_addr,
-                           void *addr,
+static void decode_address(struct decoded_address *d_addr, void *addr,
                            struct cache *cache)
 {
-	unsigned long addr_ = (unsigned long) addr; // can't do bit-ops on a pointer
+	// can't do bit-ops on a pointer
+	unsigned long addr_ = (unsigned long) addr;
 	memset(d_addr, 0, sizeof(*d_addr));
 	d_addr->tag = addr_ >> (cache->c - cache->s);
 	unsigned long mask = (1 << (cache->c - cache->s)) - 1;
@@ -333,9 +333,8 @@ static void parse_args(int argc, char *argv[], int *cache_params)
 		exit(EXIT_FAILURE);
 	}
 
-	for (int i = 1; i < argc; ++i) {
+	for (int i = 1; i < argc; ++i)
 		cache_params[i - 1] = atoi(argv[i]);
-	}
 }
 
 void print_cache(struct cache *c)
