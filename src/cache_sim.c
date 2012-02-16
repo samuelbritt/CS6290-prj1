@@ -56,7 +56,6 @@ struct cache {
 	unsigned int miss_count[2];	// indexed by enum access_type
 	unsigned int writebacks;	// number of writeback accesses
 	size_t data_transferred;	// bytes
-	unsigned long total_storage;	// bits
 };
 
 #define fail(msg) do {			\
@@ -147,9 +146,25 @@ static size_t writebacks(struct cache *cache)
 	return cache->writebacks * bytes_per_block(cache);
 }
 
-static size_t total_storage(struct cache *cache)
+/* returns total area of a single cache in bits. Includes both data storage
+ * and overhead. Assumes address sizes are 32 bits */
+static unsigned long cache_area(struct cache *cache)
 {
-	return 0;
+	int entry_count = 1 << (cache->c - cache->b);
+	int tag_size = 32 - (cache->c - cache->s);
+	long data_store_in_bits = (1 << cache->c) * 8;
+	// add 2 for valid/dirty bits
+	return data_store_in_bits + entry_count * (tag_size + 2);
+}
+
+/* returns the total area, including overhead for a linked list of caches */
+static size_t total_cache_area(struct cache *cache)
+{
+	size_t storage = 0;
+	do {
+		storage += cache_area(cache);
+	} while ((cache = cache->next));
+	return storage / 8;
 }
 
 static float miss_rate(struct cache *cache)
@@ -335,7 +350,7 @@ void print_cache(struct cache *c)
 	printf("Data Transferred (Bytes): %zd\n", c->data_transferred);
 	printf("Total Misses: %d\n", total_misses(c));
 	printf("Miss Rate: %0.6g\n", miss_rate(c));
-	printf("Total Storage (Bits): %lu\n", c->total_storage);
+	printf("Total Storage (Bits): %lu\n", cache_area(c));
 }
 
 void print_results(struct cache caches[])
@@ -349,7 +364,7 @@ void print_results(struct cache caches[])
 	}
 
 	printf("\nAAT: %d ns\n", average_access_time(caches));
-	printf("Total Storage (Bytes): %lu\n", total_storage(caches));
+	printf("Total Storage (Bytes): %lu\n", total_cache_area(caches));
 
 	for (int i = 0; i < CACHE_COUNT; ++i) {
 		printf("\n");
