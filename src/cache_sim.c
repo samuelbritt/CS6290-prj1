@@ -293,8 +293,6 @@ static void cache_miss(struct cache *cache, enum access_type type,
 		evict_addr.index = access_addr->index;
 		evict_addr.offset = 0;
 		cache->writeback_count++;
-		cache->data_transferred += blocks_per_set(cache) *
-			bytes_per_block(cache);
 		cache_access(cache->next, WRITE_ACCESS,
 			     encode_address(&evict_addr, cache));
 	}
@@ -314,9 +312,6 @@ static void cache_access(struct cache *cache, enum access_type type,
 {
 	if (!cache)
 		return;
-	if (type == READ_ACCESS)
-	cache->data_transferred += blocks_per_set(cache) *
-		bytes_per_block(cache);
 	cache->access_count[type]++;
 	struct decoded_address d_addr;
 	decode_address(&d_addr, addr, cache);
@@ -359,7 +354,29 @@ static void parse_args(int argc, char *argv[], int *cache_params)
 		cache_params[i - 1] = atoi(argv[i]);
 }
 
-void print_cache(struct cache *c)
+void print_cache_contents(struct cache *c)
+{
+	struct decoded_address addr;
+	struct set *set;
+
+	fprintf(stderr, "L%d Cache Contents", c->level);
+	for (int i = 0; i < set_count(c); ++i) {
+		fprintf(stderr, "\n| ");
+		addr.index = i;
+		set = &c->sets[i];
+		for (int j = 0; j < blocks_per_set(c); ++j) {
+			addr.tag = set->entries[j].tag;
+			for (int k = 0; k < bytes_per_block(c); ++k) {
+				addr.offset = k;
+				fprintf(stderr, "%p ", encode_address(&addr, c));
+			}
+			fprintf(stderr, "| ");
+		}
+	}
+	fprintf(stderr, "\n");
+}
+
+void print_cache_statistics(struct cache *c)
 {
 	printf("L%d Cache\n", c->level);
 	printf("Accesses: %d\n", total_accesses(c));
@@ -388,7 +405,12 @@ void print_results(struct cache caches[])
 
 	for (int i = 0; i < CACHE_COUNT; ++i) {
 		printf("\n");
-		print_cache(&caches[i]);
+		print_cache_statistics(&caches[i]);
+	}
+
+	for (int i = 0; i < CACHE_COUNT; ++i) {
+		printf("\n");
+		print_cache_contents(&caches[i]);
 	}
 }
 
