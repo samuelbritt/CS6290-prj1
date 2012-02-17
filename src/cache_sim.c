@@ -363,7 +363,7 @@ void print_results(struct cache caches[])
 	}
 
 	printf("\nAAT: %d ns\n", average_access_time(caches));
-	printf("Total Storage (Bytes): %lu\n", total_cache_area(caches));
+	printf("Total Storage (Bytes): %zd\n", total_cache_area(caches));
 
 	for (int i = 0; i < CACHE_COUNT; ++i) {
 		printf("\n");
