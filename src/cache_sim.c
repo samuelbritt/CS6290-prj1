@@ -106,9 +106,9 @@ static void cache_init(struct cache *cache, int level, unsigned c, unsigned b,
 	cache->s = s;
 	cache->level = level;
 
-	/* Allocate all the memory at once. The buffer is structured as set0 for
-	 * the cache, followed by set1, set2, ..., followed by all the entries
-	 * for set0, followed for all the entries for set1, etc. */
+	/* Allocate all the memory at once. The buffer is structured as set0
+	 * for the cache, followed by set1, set2, ..., followed by all the
+	 * entries for set0, followed for all the entries for set1, etc. */
 	cache->set_count = set_count(cache);
 	int entries_per_set = blocks_per_set(cache);
 	size_t sizeof_sets_total = cache->set_count * sizeof(*cache->sets);
@@ -131,13 +131,14 @@ static void cache_init(struct cache *cache, int level, unsigned c, unsigned b,
 /* functions to perform statistics on caches */
 static unsigned int total_accesses(struct cache *cache)
 {
-	return cache->access_count[READ_ACCESS]
-	        + cache->access_count[WRITE_ACCESS];
+	return cache->access_count[READ_ACCESS] +
+		cache->access_count[WRITE_ACCESS];
 }
 
 static unsigned int total_misses(struct cache *cache)
 {
-	return cache->miss_count[READ_ACCESS] + cache->miss_count[WRITE_ACCESS];
+	return cache->miss_count[READ_ACCESS] +
+		cache->miss_count[WRITE_ACCESS];
 }
 
 /* returns writebacks in bytes */
@@ -169,8 +170,8 @@ static size_t total_cache_area(struct cache *cache)
 
 static float miss_rate(struct cache *cache)
 {
-	return cache->miss_count[READ_ACCESS]
-	        / ((float) cache->access_count[READ_ACCESS]);
+	return cache->miss_count[READ_ACCESS] /
+		((float) cache->access_count[READ_ACCESS]);
 }
 
 static float hit_time(struct cache *cache)
@@ -196,10 +197,10 @@ static unsigned int miss_penalty(struct cache *cache)
 }
 
 /* combines an address from its tag, index, and offset into a full pointer */
-static void *encode_address(struct decoded_address *d_addr, struct cache *cache)
+static void *encode_address(struct decoded_address *d_addr,
+			    struct cache *cache)
 {
-	unsigned long addr =
-	        (d_addr->tag << (cache->c - cache->s) |
+	unsigned long addr = (d_addr->tag << (cache->c - cache->s) |
 	                d_addr->index << (cache->b) |
 	                d_addr->offset);
 	return (void *) addr;
@@ -355,8 +356,7 @@ void print_cache(struct cache *c)
 void print_results(struct cache caches[])
 {
 	printf("Parameters:\n");
-	for (int i = 0; i < CACHE_COUNT; i++)
-	{
+	for (int i = 0; i < CACHE_COUNT; i++) {
 		printf("C%d: %d\n", caches[i].level, caches[i].c);
 		printf("B%d: %d\n", caches[i].level, caches[i].b);
 		printf("S%d: %d\n", caches[i].level, caches[i].s);
