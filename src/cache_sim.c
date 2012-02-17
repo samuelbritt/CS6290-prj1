@@ -220,6 +220,8 @@ static void decode_address(struct decoded_address *d_addr, void *addr,
 	d_addr->offset = addr_ & mask;
 }
 
+/* Touches an entry. If the tags match returns True. Updates the entry age and
+ * dirty bits accordingly */
 static bool entry_access(struct cache_entry *e, unsigned tag,
                          enum access_type type)
 {
@@ -233,6 +235,8 @@ static bool entry_access(struct cache_entry *e, unsigned tag,
 	return False;
 }
 
+/* Touches each cache entry in the set, looking for the specified tag. Returns
+ * True on a hit. */
 static bool set_access(struct set *set, unsigned tag, enum access_type type)
 {
 	bool hit = False;
@@ -253,6 +257,8 @@ static bool set_access(struct set *set, unsigned tag, enum access_type type)
 	return hit;
 }
 
+/* Chooses the next entry to evict. Will return an empty (invalid) entry if
+ * one is available */
 static struct cache_entry *entry_to_evict(struct set *set)
 {
 	if (set->empty)
@@ -292,7 +298,8 @@ static void cache_miss(struct cache *cache, enum access_type type,
 		e->flags |= DIRTY;
 }
 
-static void cache_access(struct cache *cache, enum access_type type, void *addr)
+static void cache_access(struct cache *cache, enum access_type type,
+			 void *addr)
 {
 	if (!cache)
 		return;
