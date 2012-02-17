@@ -54,8 +54,7 @@ struct cache {
 
 	unsigned int access_count[2];	// indexed by enum access_type
 	unsigned int miss_count[2];	// indexed by enum access_type
-	unsigned int writebacks;	// number of writeback accesses
-	size_t data_transferred;	// bytes
+	unsigned int writeback_count;	// number of writeback accesses
 };
 
 #define fail(msg) do {			\
@@ -148,7 +147,13 @@ static unsigned int total_misses(struct cache *cache)
 /* returns writebacks in bytes */
 static size_t writebacks(struct cache *cache)
 {
-	return cache->writebacks * bytes_per_block(cache);
+	return cache->writeback_count * bytes_per_block(cache);
+}
+
+static size_t total_data_transfered(struct cache *cache)
+{
+	return bytes_per_block(cache) * (cache->writeback_count +
+					 total_misses(cache));
 }
 
 /* returns total area of a single cache in bits. Includes both data storage
@@ -287,18 +292,13 @@ static void cache_miss(struct cache *cache, enum access_type type,
 		evict_addr.tag = e->tag;
 		evict_addr.index = access_addr->index;
 		evict_addr.offset = 0;
-		cache->writebacks++;
+		cache->writeback_count++;
 		cache->data_transferred += blocks_per_set(cache) *
 			bytes_per_block(cache);
 		cache_access(cache->next, WRITE_ACCESS,
 			     encode_address(&evict_addr, cache));
 	}
 
-	/* cache->data_transferred += blocks_per_set(cache) * */
-	/*         bytes_per_block(cache); */
-	/* if (cache->next) */
-	/*         cache->next->data_transferred += blocks_per_set(cache) * */
-	/*                 bytes_per_block(cache); */
 	cache_access(cache->next, READ_ACCESS, encode_address(access_addr,
 							      cache));
 	e->tag = access_addr->tag;
@@ -368,7 +368,7 @@ void print_cache(struct cache *c)
 	printf("Writes: %d\n", c->access_count[WRITE_ACCESS]);
 	printf("Write Misses: %d\n", c->miss_count[WRITE_ACCESS]);
 	printf("Writebacks (Bytes): %zd\n", writebacks(c));
-	printf("Data Transferred (Bytes): %zd\n", c->data_transferred);
+	printf("Data Transferred (Bytes): %zd\n", total_data_transfered(c));
 	printf("Total Misses: %d\n", total_misses(c));
 	printf("Miss Rate: %0.6g\n", miss_rate(c));
 	printf("Total Storage (Bits): %lu\n", cache_area(c));
