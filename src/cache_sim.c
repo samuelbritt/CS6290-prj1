@@ -86,11 +86,15 @@ static int set_count(struct cache *cache)
 
 static int blocks_per_set(struct cache *cache)
 {
+	if (!cache)
+		return 0;
 	return 1 << cache->s;
 }
 
 static size_t bytes_per_block(struct cache *cache)
 {
+	if (!cache)
+		return 0;
 	return 1 << cache->b;
 }
 
@@ -284,10 +288,17 @@ static void cache_miss(struct cache *cache, enum access_type type,
 		evict_addr.index = access_addr->index;
 		evict_addr.offset = 0;
 		cache->writebacks++;
+		cache->data_transferred += blocks_per_set(cache) *
+			bytes_per_block(cache);
 		cache_access(cache->next, WRITE_ACCESS,
-		             encode_address(&evict_addr, cache));
+			     encode_address(&evict_addr, cache));
 	}
 
+	/* cache->data_transferred += blocks_per_set(cache) * */
+	/*         bytes_per_block(cache); */
+	/* if (cache->next) */
+	/*         cache->next->data_transferred += blocks_per_set(cache) * */
+	/*                 bytes_per_block(cache); */
 	cache_access(cache->next, READ_ACCESS, encode_address(access_addr,
 							      cache));
 	e->tag = access_addr->tag;
@@ -303,6 +314,9 @@ static void cache_access(struct cache *cache, enum access_type type,
 {
 	if (!cache)
 		return;
+	if (type == READ_ACCESS)
+	cache->data_transferred += blocks_per_set(cache) *
+		bytes_per_block(cache);
 	cache->access_count[type]++;
 	struct decoded_address d_addr;
 	decode_address(&d_addr, addr, cache);
