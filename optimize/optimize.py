@@ -11,7 +11,7 @@ input_fmt = os.path.join(traces_dir, "%s_trace_aligned.txt")
 validation_dir = "./tests/validation"
 validation_fmt = os.path.join(validation_dir, "%s_validation.txt")
 
-def aat(cache_params, stdin, stdout, stderr):
+def avg_access_time(cache_params, stdin, stdout, stderr):
     """" Wrapper for the cache_sim program. It runs the simulation given the
     inputs, parses the output for Average Access Time, and returns it as an
     int. In this way, this function can be used as an objective function to
@@ -100,31 +100,64 @@ if __name__ == '__main__':
             "params": (9, 6, 2, 10, 6, 3, 11, 6, 4)
         },
     ]
-    for t in tests:
-        name = t["name"]
-        params = scipy.array(t["params"])
-        input = open(input_fmt % name)
-        output = open(os.path.join("optimize", name + ".out"), "w+")
-        err = open("/dev/null")
-        print t["name"]
-        print "aat:", aat(params, input, output, err)
-        print "storage:", total_storage(params)
-        print "constraints:", constraints(params)
-        print
+    # for t in tests:
+    #     name = t["name"]
+    #     params = scipy.array(t["params"])
+    #     input = open(input_fmt % name)
+    #     output = open(os.path.join("optimize", name + ".out"), "w+")
+    #     err = open("/dev/null")
+    #     print t["name"]
+    #     print "aat:", average_access_time(params, input, output, err)
+    #     print "storage:", total_storage(params)
+    #     print "constraints:", constraints(params)
+    #     print
 
     name = tests[1]["name"]
     params = scipy.array(tests[0]["params"])
     stdin = open(input_fmt % name)
     stdout = open(os.path.join("optimize", name + ".out"), "w+")
     stderr = open("/dev/null", "w")
-    xopt = scipy.optimize.fmin_slsqp(func=aat,
-                                     x0=params,
-                                     args=(stdin, stdout, stderr),
-                                     f_ieqcons=constraints,
-                                     # bounds=[(0, 31)]*len(params),
-                                     iprint=2, # verbosity
-                                    )
-    print xopt
-    print "aat:", aat(xopt, stdin, stdout, stderr)
-    print "storage:", total_storage(xopt)
-    print "constraints:", constraints(xopt)
+
+    min_aat = float("inf")
+    min_size = 0
+    min_params = []
+    max_size = 1024 * 1024
+    for b1 in range(0, 20, 5):
+        for c1 in range(b1, 20, 5):
+            for s1 in range(0, c1-b1):
+                for b2 in range(b1, 20, 5):
+                    for c2 in range(max(c1, b2), 20, 5):
+                        for s2 in range(s1, c2-b2):
+                            for b3 in range(b2, 20, 5):
+                                for c3 in range(max(c2, b3), 20, 5):
+                                    for s3 in range(s2, c3-b3):
+                                        caches = [c1, b1, s1,
+                                                  c2, b2, s2,
+                                                  c3, b3, s3]
+                                        size = total_storage(caches)
+                                        if size > max_size:
+                                            continue
+                                        aat = avg_access_time(caches,
+                                                              stdin,
+                                                              stdout,
+                                                              stderr)
+                                        if aat < min_aat:
+                                            min_aat = aat
+                                            min_size = size
+                                            min_params = caches[:]
+    print "size:", min_size
+    print "aat:", min_aat
+    print "params:", min_params
+
+
+    # xopt = scipy.optimize.fmin_slsqp(func=aat,
+    #                                  x0=params,
+    #                                  args=(stdin, stdout, stderr),
+    #                                  f_ieqcons=constraints,
+    #                                  # bounds=[(0, 31)]*len(params),
+    #                                  iprint=2, # verbosity
+    #                                 )
+    # print xopt
+    # print "aat:", aat(xopt, stdin, stdout, stderr)
+    # print "storage:", total_storage(xopt)
+    # print "constraints:", constraints(xopt)
