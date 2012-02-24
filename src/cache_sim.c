@@ -3,11 +3,12 @@
 #include <string.h>
 #include <limits.h>
 
+#include "cache_sim.h"
+
 typedef int bool;
 #define False 0;
 #define True 1;
 
-#define CACHE_COUNT 3
 
 enum access_type {
 	READ_ACCESS,
@@ -43,19 +44,6 @@ struct set {
 	struct cache_entry *LRU;	// current LRU entry
 };
 
-struct cache {
-	struct cache *next;		// linked list; NULL for last cache
-	enum cache_level level;
-	unsigned int c;			// log_2(cache size)
-	unsigned int b;			// log_2(block size)
-	unsigned int s; 		// log_2(set associativity)
-	unsigned int set_count;
-	struct set *sets;		// array addressed by index
-
-	unsigned int access_count[2];	// indexed by enum access_type
-	unsigned int miss_count[2];	// indexed by enum access_type
-	unsigned int writeback_count;	// number of writeback accesses
-};
 
 #define fail(msg) do {			\
 	fprintf(stderr, "%s\n", (msg));	\
@@ -98,8 +86,8 @@ static size_t bytes_per_block(struct cache *cache)
 }
 
 /* initialize block */
-static void cache_init(struct cache *cache, int level, unsigned c, unsigned b,
-                       unsigned s)
+void cache_init(struct cache *cache, struct cache *next, int level, unsigned c, unsigned b,
+		unsigned s)
 {
 	/* most values are 0 to start with */
 	memset(cache, 0, sizeof(*cache));
@@ -107,7 +95,8 @@ static void cache_init(struct cache *cache, int level, unsigned c, unsigned b,
 	cache->c = c;
 	cache->b = b;
 	cache->s = s;
-	cache->level = level;
+	cache->cache_level = level;
+	cache->next = next;
 
 	/* Allocate all the memory at once. The buffer is structured as set0
 	 * for the cache, followed by set1, set2, ..., followed by all the
@@ -129,6 +118,12 @@ static void cache_init(struct cache *cache, int level, unsigned c, unsigned b,
 		cache->sets[i].entries = e;
 		e += cache->sets[i].entry_count;
 	}
+}
+
+/* Cleans up a cache. Does not "free" the cache pointer */
+void cache_destroy(struct cache *cache)
+{
+	free(cache->sets);
 }
 
 /* functions to perform statistics on caches */
@@ -168,7 +163,7 @@ static unsigned long cache_area(struct cache *cache)
 }
 
 /* returns the total area, including overhead for a linked list of caches */
-static size_t total_cache_area(struct cache *cache)
+size_t total_cache_area(struct cache *cache)
 {
 	size_t storage = 0;
 	do {
@@ -185,11 +180,11 @@ static float miss_rate(struct cache *cache)
 
 static float hit_time(struct cache *cache)
 {
-	return 2 * cache->level + 0.2 * cache->level * cache->s;
+	return 2 * cache->cache_level + 0.2 * cache->cache_level * cache->s;
 }
 
 static unsigned int miss_penalty(struct cache *cache);
-static unsigned int average_access_time(struct cache *cache)
+unsigned int average_access_time(struct cache *cache)
 {
 	return hit_time(cache) + miss_rate(cache) * miss_penalty(cache);
 }
@@ -198,7 +193,7 @@ static unsigned int average_access_time(struct cache *cache)
  * average_access_time */
 static unsigned int miss_penalty(struct cache *cache)
 {
-	if (cache->level == CACHE_COUNT) {
+	if (cache->cache_level == CACHE_COUNT) {
 		return 500;
 	} else {
 		return average_access_time(cache->next);
@@ -278,7 +273,7 @@ static struct cache_entry *entry_to_evict(struct set *set)
 	return NULL;
 }
 
-static void cache_access(struct cache *c, enum access_type type, void *addr);
+void cache_access(struct cache *c, int access_type, void *addr);
 static void cache_miss(struct cache *cache, enum access_type type,
                        struct set *set,
                        struct decoded_address *access_addr)
@@ -307,23 +302,23 @@ static void cache_miss(struct cache *cache, enum access_type type,
 		e->flags |= DIRTY;
 }
 
-static void cache_access(struct cache *cache, enum access_type type,
+void cache_access(struct cache *cache, int access_type,
 			 void *addr)
 {
 	if (!cache)
 		return;
-	cache->access_count[type]++;
+	cache->access_count[access_type]++;
 	struct decoded_address d_addr;
 	decode_address(&d_addr, addr, cache);
 	struct set *set = &cache->sets[d_addr.index];
 
-	bool hit = set_access(set, d_addr.tag, type);
+	bool hit = set_access(set, d_addr.tag, access_type);
 	if (!hit)
-		cache_miss(cache, type, set, &d_addr);
+		cache_miss(cache, access_type, set, &d_addr);
 }
 
 /* returns the access_type specified by the char input. Returns -1 on error */
-static int rw2access_type(char rw)
+int rw2access_type(char rw)
 {
 	switch (rw) {
 	case 'r':
@@ -359,7 +354,7 @@ void print_cache_contents(struct cache *c)
 	struct decoded_address addr;
 	struct set *set;
 
-	fprintf(stderr, "L%d Cache Contents", c->level);
+	fprintf(stderr, "L%d Cache Contents", c->cache_level);
 	for (int i = 0; i < set_count(c); ++i) {
 		fprintf(stderr, "\n| ");
 		addr.index = i;
@@ -378,7 +373,7 @@ void print_cache_contents(struct cache *c)
 
 void print_cache_statistics(struct cache *c)
 {
-	printf("L%d Cache\n", c->level);
+	printf("L%d Cache\n", c->cache_level);
 	printf("Accesses: %d\n", total_accesses(c));
 	printf("Reads: %d\n", c->access_count[READ_ACCESS]);
 	printf("Read Misses: %d\n", c->miss_count[READ_ACCESS]);
@@ -395,9 +390,9 @@ void print_results(struct cache caches[])
 {
 	printf("Parameters:\n");
 	for (int i = 0; i < CACHE_COUNT; i++) {
-		printf("C%d: %d\n", caches[i].level, caches[i].c);
-		printf("B%d: %d\n", caches[i].level, caches[i].b);
-		printf("S%d: %d\n", caches[i].level, caches[i].s);
+		printf("C%d: %d\n", caches[i].cache_level, caches[i].c);
+		printf("B%d: %d\n", caches[i].cache_level, caches[i].b);
+		printf("S%d: %d\n", caches[i].cache_level, caches[i].s);
 	}
 
 	printf("\nAAT: %d ns\n", average_access_time(caches));
@@ -426,8 +421,7 @@ int main_(int argc, char *argv[])
 		int c = cache_params[j++];
 		int b = cache_params[j++];
 		int s = cache_params[j++];
-		cache_init(&caches[i], level, c, b, s);
-		caches[i].next = &caches[i+1];
+		cache_init(&caches[i], &caches[i+1], level, c, b, s);
 	}
 	caches[CACHE_COUNT - 1].next = NULL;
 
@@ -438,5 +432,9 @@ int main_(int argc, char *argv[])
 		cache_access(caches, rw2access_type(rw), addr);
 	}
 	print_results(caches);
+
+	for (int i = 0; i < CACHE_COUNT; ++i) {
+		cache_destroy(&caches[i]);
+	}
 	return 0;
 }

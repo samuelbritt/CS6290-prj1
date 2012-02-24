@@ -4,7 +4,7 @@ export ROOT
 
 include Rules.mk
 
-SRC_DIRS = src
+SRC_DIRS = src optimize
 TEST_DIRS = tests
 
 all:
