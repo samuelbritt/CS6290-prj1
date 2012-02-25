@@ -1,0 +1,282 @@
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.1.19)  24 FEB 2012 23:28
+entering extended mode
+ %&-line parsing enabled.
+**report.tex
+(./report.tex
+LaTeX2e <2009/09/24>
+Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
+yphenation, loaded.
+(/usr/share/texmf-texlive/tex/latex/base/article.cls
+Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
+(/usr/share/texmf-texlive/tex/latex/base/size10.clo
+File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/home/sam/texmf/tex/latex/clrscode3e.sty
+Package: clrscode3e 
+
+(/usr/share/texmf-texlive/tex/latex/graphics/graphics.sty
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texmf-texlive/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(/etc/texmf/tex/latex/config/graphics.cfg
+File: graphics.cfg 2009/08/28 v1.8 graphics configuration of TeX Live
+)
+Package graphics Info: Driver file: pdftex.def on input line 91.
+
+(/usr/share/texmf-texlive/tex/latex/pdftex-def/pdftex.def
+File: pdftex.def 2010/03/12 v0.04p Graphics/color for pdfTeX
+\Gread@gobject=\count87
+))
+\c@codelinenumber=\count88
+\c@indent=\count89
+\digitwidth=\skip43
+\savecode=\box26
+\codeboxwidth=\skip44
+\c@thisindent=\count90
+)
+(/usr/share/texmf-texlive/tex/latex/booktabs/booktabs.sty
+Package: booktabs 2005/04/14 v1.61803 publication quality tables
+\heavyrulewidth=\dimen103
+\lightrulewidth=\dimen104
+\cmidrulewidth=\dimen105
+\belowrulesep=\dimen106
+\belowbottomsep=\dimen107
+\aboverulesep=\dimen108
+\abovetopsep=\dimen109
+\cmidrulesep=\dimen110
+\cmidrulekern=\dimen111
+\defaultaddspace=\dimen112
+\@cmidla=\count91
+\@cmidlb=\count92
+\@aboverulesep=\dimen113
+\@belowrulesep=\dimen114
+\@thisruleclass=\count93
+\@lastruleclass=\count94
+\@thisrulewidth=\dimen115
+)
+(/usr/share/texmf-texlive/tex/latex/multirow/multirow.sty
+\bigstrutjot=\dimen116
+)
+(/home/sam/texmf/tex/latex/siunitx/siunitx.sty
+Package: siunitx 2008/12/22 v1.1j A comprehensive (SI) units package
+
+(/usr/share/texmf-texlive/tex/latex/xkeyval/xkeyval.sty
+Package: xkeyval 2008/08/13 v2.6a package option processing (HA)
+
+(/usr/share/texmf-texlive/tex/generic/xkeyval/xkeyval.tex
+\XKV@toks=\toks14
+\XKV@tempa@toks=\toks15
+\XKV@depth=\count95
+File: xkeyval.tex 2008/08/13 v2.6a key=value parser (HA)
+
+(/usr/share/texmf-texlive/tex/generic/xkeyval/keyval.tex)))
+(/usr/share/texmf-texlive/tex/latex/amsmath/amstext.sty
+Package: amstext 2000/06/29 v2.01
+
+(/usr/share/texmf-texlive/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0
+\@emptytoks=\toks16
+\ex@=\dimen117
+))
+(/usr/share/texmf-texlive/tex/latex/tools/array.sty
+Package: array 2008/09/09 v2.4c Tabular extension package (FMi)
+\col@sep=\dimen118
+\extrarowheight=\dimen119
+\NC@list=\toks17
+\extratabsurround=\skip45
+\backup@length=\skip46
+)
+(/usr/share/texmf-texlive/tex/latex/tools/xspace.sty
+Package: xspace 2006/05/08 v1.12 Space after command names (DPC,MH)
+)
+\si@tempboxa=\box27
+\si@tempboxb=\box28
+\si@tempboxc=\box29
+\si@tempboxd=\box30
+\si@temptoks=\toks18
+\si@tab@mantprecnt=\count96
+\si@tab@mantpostcnt=\count97
+\si@tab@expprecnt=\count98
+\si@tab@exppostcnt=\count99
+\si@num@dp=\count100
+\si@num@sf=\count101
+\si@eVcorra=\skip47
+\si@eVcorrb=\skip48
+\si@frc@displen=\skip49
+\si@frc@textlen=\skip50
+\si@frc@suplen=\skip51
+\si@frc@ssuplen=\skip52
+\si@num@rndtarget=\count102
+\si@tab@toks=\toks19
+\si@tab@pretoks=\toks20
+\si@tab@posttoks=\toks21
+\si@tempcnta=\count103
+\si@tempcntb=\count104
+\si@tab@prebox=\box31
+\si@tab@midbox=\box32
+\si@tab@postbox=\box33
+\si@tab@expbox=\box34
+\si@tab@predim=\dimen120
+\si@tab@postdim=\dimen121
+\si@tab@expdim=\dimen122
+\si@tempdima=\dimen123
+\si@tempdimb=\dimen124
+\si@unt@unitcnta=\count105
+\si@unt@unitcntb=\count106
+\si@unt@depthcnt=\count107
+\si@unt@prefixcnt=\count108
+\si@unt@powerdim=\dimen125
+
+(/home/sam/texmf/tex/latex/siunitx/si-prefix.cfg
+File: si-prefix.cfg 2008/12/22 v1.1j siunitx: SI Multiple prefixes
+Package siunitx Info: Redefining unit \kilogram on input line 46.
+)
+(/home/sam/texmf/tex/latex/siunitx/si-named.cfg
+File: si-named.cfg 2008/12/22 v1.1j siunitx: SI Named units
+)
+(/home/sam/texmf/tex/latex/siunitx/si-addn.cfg
+File: si-addn.cfg 2008/12/22 v1.1j siunitx: SI Additional units
+)
+(/home/sam/texmf/tex/latex/siunitx/si-prefixed.cfg
+File: si-prefixed.cfg 2008/12/22 v1.1j siunitx: SI Prefixed units
+
+(/home/sam/texmf/tex/latex/siunitx/si-accepted.cfg
+File: si-accepted.cfg 2008/12/22 v1.1j siunitx: SI Accepted units
+)
+(/home/sam/texmf/tex/latex/siunitx/si-physical.cfg
+File: si-physical.cfg 2008/12/22 v1.1j siunitx: SI Physically-measured units
+))
+(/home/sam/texmf/tex/latex/siunitx/si-abbr.cfg
+File: si-abbr.cfg 2008/12/22 v1.1j siunitx: Abbreviated units
+)
+(/home/sam/texmf/tex/latex/siunitx/si-binary.cfg
+File: si-binary.cfg 2008/12/22 v1.1j siunitx: Binary units
+))
+(/usr/share/texmf-texlive/tex/latex/fancyvrb/fancyvrb.sty
+Package: fancyvrb 2008/02/07
+
+Style option: `fancyvrb' v2.7a, with DG/SPQR fixes, and firstline=lastline fix 
+<2008/02/07> (tvz)
+\FV@CodeLineNo=\count109
+\FV@InFile=\read1
+\FV@TabBox=\box35
+\c@FancyVerbLine=\count110
+\FV@StepNumber=\count111
+\FV@OutFile=\write3
+) (/usr/share/texmf-texlive/tex/latex/base/flafter.sty
+Package: flafter 2000/07/23 v1.2i Standard LaTeX floats after reference (FMi)
+)
+(./report.aux)
+\openout1 = `report.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 17.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 17.
+ (/usr/share/texmf-texlive/tex/latex/base/ts1cmr.fd
+File: ts1cmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    ... okay on input line 17.
+
+(/usr/share/texmf-texlive/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count112
+\scratchdimen=\dimen126
+\scratchbox=\box36
+\nofMPsegments=\count113
+\nofMParguments=\count114
+\everyMPshowfont=\toks22
+\MPscratchCnt=\count115
+\MPscratchDim=\dimen127
+\MPnumerator=\count116
+\everyMPtoPDFconversion=\toks23
+)
+\symsi@greek=\mathgroup4
+Package siunitx Info: xfrac package unavailable
+(siunitx)             using `fraction=sfrac' will fall back on
+(siunitx)             nicefrac-like method on input line 17.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 17.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 17.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 18.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 18.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 18.
+
+Overfull \hbox (6.2682pt too wide) in paragraph at lines 23--35
+\OT1/cmr/m/n/10 niques. For ex-am-ple, the sci-en-tific Python pack-age [] pro-
+vides [],
+ []
+
+
+Overfull \hbox (8.68463pt too wide) in paragraph at lines 48--53
+[]\OT1/cmr/m/n/10 So for these rea-sons I took a brute-force search ap-proach. 
+The nine-dimensional
+ []
+
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 54.
+(/usr/share/texmf-texlive/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 54.
+
+Warning: Indentation ends at level 4 in codebox on page 1.
+[1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+Overfull \hbox (26.0321pt too wide) in paragraph at lines 84--84
+[]| [] 
+ []
+
+[2] (./report.aux) ) 
+Here is how much of TeX's memory you used:
+ 3352 strings out of 495061
+ 47146 string characters out of 1182621
+ 134718 words of memory out of 3000000
+ 6499 multiletter control sequences out of 15000+50000
+ 12107 words of font info for 45 fonts, out of 3000000 for 9000
+ 28 hyphenation exceptions out of 8191
+ 42i,12n,59p,729b,427s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cm
+bx10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></
+usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/t
+exmf-texlive/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-texlive
+/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1
+/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsf
+onts/cm/cmr17.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr7
+.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/
+share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on report.pdf (2 pages, 117154 bytes).
+PDF statistics:
+ 49 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+
