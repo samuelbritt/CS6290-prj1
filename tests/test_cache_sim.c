@@ -6,9 +6,9 @@
 void test_validate(CuTest *tc) {
 	/* validates all the files in tests/validation */
 	char *scripts[] = {
-		"tests/validation/gcc_validation.sh",
-		"tests/validation/go_validation.sh",
-		"tests/validation/mcf_validation.sh",
+		"tests/validation/gcc_validation.sh 2> /dev/null",
+		"tests/validation/go_validation.sh 2> /dev/null",
+		"tests/validation/mcf_validation.sh 2> /dev/null",
 		""
 	};
 	char *s;
@@ -75,15 +75,12 @@ void test_encode_address(CuTest *tc) {
 }
 
 void test_set_access(CuTest *tc) {
-	int access_type = READ_ACCESS;
 	struct decoded_address addr;
-	unsigned writeback_tag;
-
 	struct cache cache;
 	int c = 16;
 	int b = 4;
 	int s = 4;
-	cache_init(&cache, 0, c, b, s);
+	cache_init(&cache, NULL, 0, c, b, s);
 	CuAssertIntEquals(tc, 16, cache.sets[0].entry_count);
 
 	addr.tag = 0xDEADB;
