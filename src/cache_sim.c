@@ -390,6 +390,9 @@ void print_cache_statistics(FILE *fp, struct cache *c)
 
 void print_results(struct cache caches[])
 {
+	for (int i = 0; i < CACHE_COUNT; ++i)
+		print_cache_contents(stderr, &caches[i]);
+
 	printf("Parameters:\n");
 	for (int i = 0; i < CACHE_COUNT; i++) {
 		printf("C%d: %d\n", caches[i].cache_level, caches[i].c);
@@ -402,8 +405,6 @@ void print_results(struct cache caches[])
 
 	for (int i = 0; i < CACHE_COUNT; ++i)
 		print_cache_statistics(stdout, &caches[i]);
-	for (int i = 0; i < CACHE_COUNT; ++i)
-		print_cache_contents(stderr, &caches[i]);
 }
 
 int main_(int argc, char *argv[])
