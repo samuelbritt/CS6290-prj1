@@ -353,6 +353,9 @@ void print_cache_contents(FILE *fp, struct cache *c)
 {
 	struct decoded_address addr;
 	struct set *set;
+	struct cache_entry *entry;
+	char valid;
+	char dirty;
 
 	fprintf(fp, "\n");
 	fprintf(fp, "L%d Cache Contents", c->cache_level);
@@ -361,7 +364,13 @@ void print_cache_contents(FILE *fp, struct cache *c)
 		addr.index = i;
 		set = &c->sets[i];
 		for (int j = 0; j < blocks_per_set(c); ++j) {
-			addr.tag = set->entries[j].tag;
+			entry = &set->entries[j];
+
+			valid = entry->flags & VALID ? 'V' : ' ';
+			dirty = entry->flags & DIRTY ? 'D' : ' ';
+			fprintf(fp, "%c%c ", valid, dirty);
+
+			addr.tag = entry->tag;
 			for (int k = 0; k < bytes_per_block(c); ++k) {
 				addr.offset = k;
 				fprintf(fp, "%p ", encode_address(&addr, c));
