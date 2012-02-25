@@ -1,0 +1,49 @@
+Parameters:
+C1: 9
+B1: 6
+S1: 0
+C2: 10
+B2: 6
+S2: 0
+C3: 11
+B3: 6
+S3: 0
+
+AAT: 94 ns
+Total Storage (Bytes): 3749
+
+L1 Cache
+Accesses: 100000
+Reads: 63640
+Read Misses: 20477
+Writes: 36360
+Write Misses: 8244
+Writebacks (Bytes): 649152
+Data Transferred (Bytes): 2487296
+Total Misses: 28721
+Miss Rate: 0.321763
+Total Storage (Bits): 4296
+
+L2 Cache
+Accesses: 38864
+Reads: 28721
+Read Misses: 21492
+Writes: 10143
+Write Misses: 0
+Writebacks (Bytes): 518848
+Data Transferred (Bytes): 1894336
+Total Misses: 21492
+Miss Rate: 0.748303
+Total Storage (Bits): 8576
+
+L3 Cache
+Accesses: 29599
+Reads: 21492
+Read Misses: 16122
+Writes: 8107
+Write Misses: 0
+Writebacks (Bytes): 409536
+Data Transferred (Bytes): 1441344
+Total Misses: 16122
+Miss Rate: 0.75014
+Total Storage (Bits): 17120
