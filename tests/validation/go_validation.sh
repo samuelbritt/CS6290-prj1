@@ -1,6 +1,8 @@
 trace=traces/go_trace_aligned.txt
-valid=tests/validation/go_validation.txt
-res=tests/validation/go_validation.res
+base=tests/validation/go_validation
+valid="$base.txt"
+res="$base.res"
+contents="$base.contents"
 
-./cache_sim 3 2 0 4 2 1 5 2 2 < "$trace" > "$res" 2> "/dev/null"
+./cache_sim 3 2 0 4 2 1 5 2 2 < "$trace" > "$res" 2> "$contents"
 diff "$valid" "$res"

@@ -9,4 +9,4 @@ s2=1
 c3=11
 b3=6
 s3=0
-./cache_sim $c1 $b1 $s1 $c2 $b2 $s2 $c3 $b3 $s3 < $trace 2> "/dev/null"
+./cache_sim $c1 $b1 $s1 $c2 $b2 $s2 $c3 $b3 $s3 < $trace #2> "/dev/null"
